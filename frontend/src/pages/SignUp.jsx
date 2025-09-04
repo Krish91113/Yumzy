@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { IoEye } from "react-icons/io5";
 import { IoEyeOffOutline } from "react-icons/io5";
 import { FcGoogle } from "react-icons/fc";
+import { useNavigate } from "react-router-dom";
 function SignUp(){
     const primaryColor = "#ff4d2d";
     const hoverColor = "#e64323";
@@ -9,6 +10,11 @@ function SignUp(){
     const borderColor = "#ddd";
     const [showPassword, setShowPassword] = useState(false);
     const [role, setRole] = useState("user");
+    const navigate = useNavigate()
+    const [fullname, setFullname] = useState("");
+    const [email, setEmail] = useState("");
+    const [mobile, setMobile] = useState("");
+    const [password, setPassword] = useState("");
     return (
         <div className="min-h-screen w-full flex items-center justify-center p-4" style={{ backgroundColor: bgColor }}>
             <div className={`bg-white rounded-xl shadow-lg w-full max-w-md p-8 border-[1px] `} style={{
@@ -21,18 +27,24 @@ function SignUp(){
 
                 <div className="mb-4"> 
                     <label htmlFor="fullname" className="block text-gray-700 font-medium mb-1">Full Name</label>
-                    <input type="text" id="fullname" className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-orange-500" placeholder="Enter your full name" style={{border : `1px solid ${borderColor}`}} />
+                    <input type="text" id="fullname" className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-orange-500" placeholder="Enter your full name" style={{border : `1px solid ${borderColor}`}} onChange={(e) =>{
+                        setFullname(e.target.value);
+                    }} value={fullname} />
                 </div>
 
                 {/* {{email}} */}
                 <div className="mb-4"> 
                     <label htmlFor="email" className="block text-gray-700 font-medium mb-1">Email</label>
-                    <input type="email" id="email" className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-orange-500" placeholder="Enter your email" style={{border : `1px solid ${borderColor}`}} />
+                    <input type="email" id="email" className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-orange-500" placeholder="Enter your email" style={{border : `1px solid ${borderColor}`}} onChange={(e) =>{
+                        setEmail(e.target.value);
+                    }} value={email} />
                 </div>
                 {/* {{Mobile}} */}
                 <div className="mb-4"> 
                     <label htmlFor="mobile" className="block text-gray-700 font-medium mb-1">Mobile</label>
-                    <input type="tel" id="mobile" className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-orange-500" placeholder="Enter your mobile number" style={{border : `1px solid ${borderColor}`}} />
+                    <input type="tel" id="mobile" className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-orange-500" placeholder="Enter your mobile number" style={{border : `1px solid ${borderColor}`}} onChange={(e) =>{
+                        setMobile(e.target.value);
+                    }} value={mobile} />
                 </div>
                 {/* {{Password}} */}
 
@@ -40,7 +52,9 @@ function SignUp(){
                     <label htmlFor="Password" className="block text-gray-700 font-medium mb-1">Password</label>
                     <div className="relative">
                         
-                    <input type={`${showPassword?"text":"password"}`} id="Password" className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-orange-500" placeholder="Enter your Password" style={{border : `1px solid ${borderColor}`}} />
+                    <input type={`${showPassword?"text":"password"}`} id="Password" className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-orange-500" placeholder="Enter your Password" style={{border : `1px solid ${borderColor}`}}  onChange={(e) =>{
+                        setPassword(e.target.value);
+                    }} value={password} />
                     <button className="absolute top-[12px] right-3 cursor-pointer text-gray-900" onClick={() => setShowPassword(!showPassword)}>{!showPassword?<IoEye />:<IoEyeOffOutline />}</button>
                     </div>
                 </div>
@@ -70,6 +84,7 @@ function SignUp(){
                         <FcGoogle size={20} />
                         <span>Sign up with Google</span>
                     </button>
+                    <p className="text-center mt-6 cursor-pointer" onClick={() => navigate("/signin")}>Already have an account? <span className="text-orange-500 cursor-pointer">Sign in</span></p>
                 </div>
             </div>
         </div>
