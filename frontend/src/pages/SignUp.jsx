@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { IoEye } from "react-icons/io5";
 import { IoEyeOffOutline } from "react-icons/io5";
+import { FcGoogle } from "react-icons/fc";
 function SignUp(){
     const primaryColor = "#ff4d2d";
     const hoverColor = "#e64323";
@@ -63,6 +64,11 @@ function SignUp(){
                 <div>
                     <button className="w-full mt-4 bg-orange-500 text-white cursor-pointer font-medium py-2 px-4 rounded-lg hover:bg-orange-600 transition-colors">
                         Sign up
+                    </button>
+
+                    <button className=" w-full mt-4 w-full border border-gray-100 rounded-lg px-4 py-2 flex items-center justify-center gap-2 hover:bg-gray-300 cursor-pointer transition-colors transition-duration-200">
+                        <FcGoogle size={20} />
+                        <span>Sign up with Google</span>
                     </button>
                 </div>
             </div>
