@@ -105,6 +105,9 @@ function SignIn() {
             </button>
           </div>
         </div>
+        <div className="text-right mb-4 text-[#ff4d2d] cursor-pointer font-medium">
+          Forgot Password?
+        </div>
 
 
         {/* Buttons */}
