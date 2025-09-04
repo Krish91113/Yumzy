@@ -2,6 +2,7 @@ import User from "../models/usermodel.js";
 import bcrypt from "bcryptjs";
 import genTokens from "../utils/token.js";
 import { response } from "express";
+import authRouter from "../routes/auth.routes.js";
 export const signUp = async (req, res) => {
     try{
         const {fullName, email, password, mobile, role} = req.body;
