@@ -1,6 +1,8 @@
+import axios from "axios";
 import React, { useState } from "react";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { Navigate, useNavigate } from "react-router-dom";
+import { serverUrl } from "../App";
 function ForgotPassword() {
     const [step,setStep] = useState(1);
     const [email,setEmail] = useState("");
@@ -8,6 +10,42 @@ function ForgotPassword() {
     const [newPassword,setNewPassword] = useState("");
     const [confirmNewPassword,setConfirmNewPassword] = useState("");
     const navigate = useNavigate();
+
+    const handleSendOtp =async () =>{
+        try {
+            const result = await axios.post(`${serverUrl}/api/auth/send-otp`, {email},
+                { withCredentials: true })
+            console.log(result)
+            setStep(2);
+        } catch (error) {
+            console.error("Error occurred while sending OTP:", error);
+        }
+    }
+    const handleVerifyOtp =async () =>{
+        try {
+            const result = await axios.post(`${serverUrl}/api/auth/verify-otp`, {email, otp},
+                { withCredentials: true })
+            console.log(result)
+            setStep(3);
+        }catch (error) {
+            console.error("Error occurred while verifying OTP:", error);
+        }
+    }
+
+    const handleResetPassword =async () =>{
+        if(newPassword !== confirmNewPassword){
+            alert("Passwords do not match");
+            return;
+        }
+        try {
+            const result = await axios.post(`${serverUrl}/api/auth/reset-password`, {email, newPassword},
+                { withCredentials: true })
+            console.log(result)
+            navigate("/signin");
+        } catch (error) {
+            console.error("Error occurred while resetting password:", error);
+        }
+    }
     return (
         <div className="flex w-full items-center justify-center min-h-screen p-4 bg-[#fff9f6] ">
             <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-8">
@@ -30,7 +68,7 @@ function ForgotPassword() {
                                     value={email}
                                 />
                             </div>
-                            <button className="w-full mt-4 bg-orange-500 text-white cursor-pointer font-medium py-2 px-4 rounded-lg hover:bg-orange-600 transition-colors" onClick={() => setStep(2)}>
+                            <button className="w-full mt-4 bg-orange-500 text-white cursor-pointer font-medium py-2 px-4 rounded-lg hover:bg-orange-600 transition-colors" onClick={handleSendOtp}>
                                 Send Otp
                             </button>
                         </div>
@@ -50,7 +88,7 @@ function ForgotPassword() {
                                     value={otp}
                                 />
                             </div>
-                            <button className="w-full mt-4 bg-orange-500 text-white cursor-pointer font-medium py-2 px-4 rounded-lg hover:bg-orange-600 transition-colors" onClick={() => setStep(3)}>
+                            <button className="w-full mt-4 bg-orange-500 text-white cursor-pointer font-medium py-2 px-4 rounded-lg hover:bg-orange-600 transition-colors" onClick={handleVerifyOtp}>
                                 Verify now
                             </button>
                         </div>
@@ -82,7 +120,7 @@ function ForgotPassword() {
                                     value={confirmNewPassword}
                                 />
                             </div>
-                            <button className="w-full mt-4 bg-orange-500 text-white cursor-pointer font-medium py-2 px-4 rounded-lg hover:bg-orange-600 transition-colors" onClick={() => setStep(4)}>
+                            <button className="w-full mt-4 bg-orange-500 text-white cursor-pointer font-medium py-2 px-4 rounded-lg hover:bg-orange-600 transition-colors" onClick={handleResetPassword}>
                                 Reset Password
                             </button>
                         </div>
