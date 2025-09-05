@@ -4,6 +4,8 @@ import { FcGoogle } from "react-icons/fc";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { serverUrl } from "../App";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { auth } from "../../firebase";
 
 function SignIn() {
   const primaryColor = "#ff4d2d";
@@ -38,7 +40,20 @@ function SignIn() {
     } catch (error) {
       console.error("Signup failed:", error.response?.data || error.message);
     }
-  };
+  }
+
+   const handleGoogleAuth = async () =>{
+      const provider = new GoogleAuthProvider()
+      const result = await signInWithPopup(auth,provider)
+      try {
+            const {data}=await axios.post(`${serverUrl}/api/auth/google-auth`, {
+              email : result.user.email,
+            }, {withCredentials: true})
+            console.log(data)
+      } catch (error) {
+            console.log(error)
+      }
+    }
 
   return (
     <div
@@ -72,7 +87,7 @@ function SignIn() {
             placeholder="Enter your email"
             style={{ border: `1px solid ${borderColor}` }}
             onChange={(e) => setEmail(e.target.value)}
-            value={email}
+            value={email} required
           />
         </div>
 
@@ -94,7 +109,7 @@ function SignIn() {
               placeholder="Enter your password"
               style={{ border: `1px solid ${borderColor}` }}
               onChange={(e) => setPassword(e.target.value)}
-              value={password}
+              value={password} required
             />
             <button
               type="button"
@@ -119,7 +134,7 @@ function SignIn() {
             Sign in
           </button>
 
-          <button className="w-full mt-4 border border-gray-100 rounded-lg px-4 py-2 flex items-center justify-center gap-2 hover:bg-gray-300 cursor-pointer transition-colors">
+          <button onClick={handleGoogleAuth} className="w-full mt-4 border border-gray-100 rounded-lg px-4 py-2 flex items-center justify-center gap-2 hover:bg-gray-300 cursor-pointer transition-colors">
             <FcGoogle size={20} />
             <span>Sign In with Google</span>
           </button>

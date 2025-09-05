@@ -65,7 +65,7 @@ function ForgotPassword() {
                                     placeholder="Enter your email"
                                     style={{ border: `1px solid #ff6b6b` }}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    value={email}
+                                    value={email} required
                                 />
                             </div>
                             <button className="w-full mt-4 bg-orange-500 text-white cursor-pointer font-medium py-2 px-4 rounded-lg hover:bg-orange-600 transition-colors" onClick={handleSendOtp}>
@@ -85,7 +85,7 @@ function ForgotPassword() {
                                     placeholder="Enter OTP"
                                     style={{ border: `1px solid #ff6b6b` }}
                                     onChange={(e) => setOtp(e.target.value)}
-                                    value={otp}
+                                    value={otp} required
                                 />
                             </div>
                             <button className="w-full mt-4 bg-orange-500 text-white cursor-pointer font-medium py-2 px-4 rounded-lg hover:bg-orange-600 transition-colors" onClick={handleVerifyOtp}>
@@ -105,7 +105,7 @@ function ForgotPassword() {
                                     placeholder="Enter New Password"
                                     style={{ border: `1px solid #ff6b6b` }}
                                     onChange={(e) => setNewPassword(e.target.value)}
-                                    value={newPassword}
+                                    value={newPassword} required
                                 />
                             </div>
                             <div className="mb-6">
@@ -117,7 +117,7 @@ function ForgotPassword() {
                                     placeholder=" Confirm Password"
                                     style={{ border: `1px solid #ff6b6b` }}
                                     onChange={(e) => setConfirmNewPassword(e.target.value)}
-                                    value={confirmNewPassword}
+                                    value={confirmNewPassword} required
                                 />
                             </div>
                             <button className="w-full mt-4 bg-orange-500 text-white cursor-pointer font-medium py-2 px-4 rounded-lg hover:bg-orange-600 transition-colors" onClick={handleResetPassword}>
