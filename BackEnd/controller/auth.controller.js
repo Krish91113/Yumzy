@@ -151,3 +151,28 @@ export const resetPassword = async (req, res) => {
     return res.status(500).json({ message: `reset password error ${error.message}` });
   }
 }
+
+export const googleAuth = async (req, res) => {
+  try {
+      const {fullName, email, mobile} = req.body;
+      let user = await User.findOne({email})
+      if(!user){
+         user = await User.create({
+           fullName,
+           email,
+           mobile,
+         })
+      const token = await genTokens(user._id)
+        res.cookie("token", token, {
+             maxAge: 10 * 24 * 60 * 60 * 1000,
+             secure: false,
+             sameSite: "strict",
+             httpOnly: true
+             });
+
+            return res.status(201).json({ message: "User registered successfully", user, token });
+      }
+  } catch (error) {
+      return res.status(500).json({ message: `google auth error ${error.message}` });
+  }
+}
