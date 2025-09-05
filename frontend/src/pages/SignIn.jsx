@@ -18,7 +18,7 @@ function SignIn() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
+  const [err,setErr]=useState("")
   
 
   
@@ -37,8 +37,9 @@ function SignIn() {
         }
       );
       console.log("Signup success:", result.data);
+      setErr("")
     } catch (error) {
-      console.error("Signup failed:", error.response?.data || error.message);
+       setErr(error?.response?.data?.message)
     }
   }
 
@@ -133,6 +134,7 @@ function SignIn() {
           >
             Sign in
           </button>
+          <p className="text-center text-red-500 my-[10px] font-semibold">*{err}</p>
 
           <button onClick={handleGoogleAuth} className="w-full mt-4 border border-gray-100 rounded-lg px-4 py-2 flex items-center justify-center gap-2 hover:bg-gray-300 cursor-pointer transition-colors">
             <FcGoogle size={20} />

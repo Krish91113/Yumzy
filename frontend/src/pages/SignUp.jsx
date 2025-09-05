@@ -22,6 +22,7 @@ function SignUp() {
   const [email, setEmail] = useState("");
   const [mobile, setMobile] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError]=useState("")
 
   const handleSignUp = async (e) => {
     e.preventDefault();
@@ -40,14 +41,15 @@ function SignUp() {
         }
       );
       console.log("Signup success:", result.data);
+      setError("")
     } catch (error) {
-      console.error("Signup failed:", error.response?.data || error.message);
+       setError(error?.response?.data?.message)
     }
   };
 
   const handleGoogleAuth = async () =>{
     if(!mobile){
-      return alert("Please enter your mobile number");
+      return setError("Please enter your mobile number")
     }
     const provider = new GoogleAuthProvider()
     const result = await signInWithPopup(auth,provider)
@@ -200,7 +202,8 @@ function SignUp() {
           >
             Sign up
           </button>
-
+          {error && <p className="text-center text-red-500 my-[10px] font-semibold">*{error}</p>}
+            
           <button onClick={handleGoogleAuth} className="w-full mt-4 border border-gray-100 rounded-lg px-4 py-2 flex items-center justify-center gap-2 hover:bg-gray-300 cursor-pointer transition-colors">
             <FcGoogle size={20} />
             <span>Sign up with Google</span>

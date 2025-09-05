@@ -10,6 +10,7 @@ function ForgotPassword() {
     const [newPassword,setNewPassword] = useState("");
     const [confirmNewPassword,setConfirmNewPassword] = useState("");
     const navigate = useNavigate();
+    const [err,setErr]=useState("")
 
     const handleSendOtp =async () =>{
         try {
@@ -17,8 +18,9 @@ function ForgotPassword() {
                 { withCredentials: true })
             console.log(result)
             setStep(2);
+            setErr("")
         } catch (error) {
-            console.error("Error occurred while sending OTP:", error);
+            setErr(error?.response?.data?.message)
         }
     }
     const handleVerifyOtp =async () =>{
@@ -27,8 +29,9 @@ function ForgotPassword() {
                 { withCredentials: true })
             console.log(result)
             setStep(3);
+            setErr("")
         }catch (error) {
-            console.error("Error occurred while verifying OTP:", error);
+            setErr(error?.response?.data?.message)
         }
     }
 
@@ -42,8 +45,9 @@ function ForgotPassword() {
                 { withCredentials: true })
             console.log(result)
             navigate("/signin");
+            setErr("")
         } catch (error) {
-            console.error("Error occurred while resetting password:", error);
+            setErr(error?.response?.data?.message)
         }
     }
     return (
@@ -71,6 +75,7 @@ function ForgotPassword() {
                             <button className="w-full mt-4 bg-orange-500 text-white cursor-pointer font-medium py-2 px-4 rounded-lg hover:bg-orange-600 transition-colors" onClick={handleSendOtp}>
                                 Send Otp
                             </button>
+                            {err && <p className="text-center text-red-500 my-[10px] font-semibold">*{err}</p>}
                         </div>
                     )}
                 
@@ -91,6 +96,7 @@ function ForgotPassword() {
                             <button className="w-full mt-4 bg-orange-500 text-white cursor-pointer font-medium py-2 px-4 rounded-lg hover:bg-orange-600 transition-colors" onClick={handleVerifyOtp}>
                                 Verify now
                             </button>
+                           {err && <p className="text-center text-red-500 my-[10px] font-semibold">*{err}</p>}
                         </div>
                     )}
 
@@ -123,6 +129,7 @@ function ForgotPassword() {
                             <button className="w-full mt-4 bg-orange-500 text-white cursor-pointer font-medium py-2 px-4 rounded-lg hover:bg-orange-600 transition-colors" onClick={handleResetPassword}>
                                 Reset Password
                             </button>
+                           {err && <p className="text-center text-red-500 my-[10px] font-semibold">*{err}</p>}
                         </div>
                     )}
 
