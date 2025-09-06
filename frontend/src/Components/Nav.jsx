@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 import { RxCross2 } from "react-icons/rx";
 
 function Nav() {
-  const { userData } = useSelector((state) => state.user);
+  const { userData, city } = useSelector((state) => state.user);
   const [showInfo, setShowInfo] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
 
@@ -40,7 +40,7 @@ function Nav() {
       <div className="hidden md:flex items-center gap-[15px] px-[15px] py-[8px] border rounded-lg bg-white shadow-sm w-[450px]">
         {/* Location */}
         <FaLocationDot size={20} className="text-[#ff4d2d]" />
-        <div className="truncate text-gray-600 w-[80px]">Mumbai</div>
+        <div className="truncate text-gray-600 w-[80px]">{city}</div>
         <span className="h-[20px] w-[1px] bg-gray-400 mx-[10px]"></span>
         {/* Search */}
         <FaSearch size={20} className="text-[#ff4d2d]" />
