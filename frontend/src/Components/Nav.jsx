@@ -10,7 +10,7 @@ import { setUserData } from "../redux/userSlice";
 import { TbReceiptRupee } from "react-icons/tb";
 import { FaPlus } from "react-icons/fa";
 function Nav() {
-  const { userData, city } = useSelector((state) => state.user);
+  const { userData, currentCity } = useSelector((state) => state.user);
   const {myShopData} = useSelector((state) => state.owner);
   const [showInfo, setShowInfo] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
@@ -33,7 +33,7 @@ function Nav() {
           {/* Location */}
           <div className="flex items-center w-[30%] overflow-hidden gap-[10px] px-[10px] border-r-[2px] border-gray-400">
             <FaLocationDot size={20} className="text-[#ff4d2d]" />
-            <div className="w-[80%] truncate text-gray-600">{city}</div>
+            <div className="w-[80%] truncate text-gray-600">{currentCity}</div>
           </div>
           {/* Search */}
           <div className="w-[80%] flex items-center gap-[10px]">
@@ -53,7 +53,7 @@ function Nav() {
       {userData.role=="user" && <div className="hidden md:flex items-center gap-[15px] px-[15px] py-[8px] border rounded-lg bg-white shadow-sm w-[450px]">
         {/* Location */}
         <FaLocationDot size={20} className="text-[#ff4d2d]" />
-        <div className="truncate text-gray-600 w-[80px]">{city}</div>
+        <div className="truncate text-gray-600 w-[80px]">{currentCity}</div>
         <span className="h-[20px] w-[1px] bg-gray-400 mx-[10px]"></span>
         {/* Search */}
         <FaSearch size={20} className="text-[#ff4d2d]" />
