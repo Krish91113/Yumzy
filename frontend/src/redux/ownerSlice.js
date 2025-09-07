@@ -3,11 +3,11 @@ import { createSlice } from "@reduxjs/toolkit";
 const ownerSlice=createSlice({
     name: "owner",
     initialState:{
-        MyShopData : null
+        myShopData : null
     },
     reducers:{
         setMyShopData:(state,action) =>{
-            state.MyShopData=action.payload
+            state.myShopData=action.payload
         },
     }
 })
