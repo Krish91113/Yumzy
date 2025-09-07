@@ -31,7 +31,7 @@ function Nav() {
           {/* Location */}
           <div className="flex items-center w-[30%] overflow-hidden gap-[10px] px-[10px] border-r-[2px] border-gray-400">
             <FaLocationDot size={20} className="text-[#ff4d2d]" />
-            <div className="w-[80%] truncate text-gray-600">Mumbai</div>
+            <div className="w-[80%] truncate text-gray-600">{city}</div>
           </div>
           {/* Search */}
           <div className="w-[80%] flex items-center gap-[10px]">
