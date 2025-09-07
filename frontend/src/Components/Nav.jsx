@@ -7,7 +7,8 @@ import { RxCross2 } from "react-icons/rx";
 import { serverUrl } from "../App";
 import axios from "axios";
 import { setUserData } from "../redux/userSlice";
-
+import { TbReceiptRupee } from "react-icons/tb";
+import { FaPlus } from "react-icons/fa";
 function Nav() {
   const { userData, city } = useSelector((state) => state.user);
   const [showInfo, setShowInfo] = useState(false);
@@ -26,7 +27,7 @@ function Nav() {
     <div className="w-full h-[80px] flex items-center justify-between md:justify-between lg:justify-center gap-[30px] px-[20px] fixed top-0 z-[9999] bg-[#fff9f6] overflow-visible">
 
       {/* Mobile search dropdown */}
-      {showSearch && (
+      {showSearch && userData.role=="user" (
         <div className="w-[90%] h-[70px] bg-white shadow-xl rounded-lg items-center gap-[20px] flex fixed top-[80px] left-[5%] md:hidden">
           {/* Location */}
           <div className="flex items-center w-[30%] overflow-hidden gap-[10px] px-[10px] border-r-[2px] border-gray-400">
@@ -47,9 +48,8 @@ function Nav() {
 
       {/* Logo */}
       <h1 className="text-3xl font-bold mb-2 text-[#ff4d2d]">YumzY</h1>
-
       {/* Desktop: location + search bar */}
-      <div className="hidden md:flex items-center gap-[15px] px-[15px] py-[8px] border rounded-lg bg-white shadow-sm w-[450px]">
+      {userData.role=="user" && <div className="hidden md:flex items-center gap-[15px] px-[15px] py-[8px] border rounded-lg bg-white shadow-sm w-[450px]">
         {/* Location */}
         <FaLocationDot size={20} className="text-[#ff4d2d]" />
         <div className="truncate text-gray-600 w-[80px]">{city}</div>
@@ -61,12 +61,13 @@ function Nav() {
           placeholder="Search delicious food"
           className="px-[10px] text-gray-700 outline-0 w-full"
         />
-      </div>
+      </div>}
+      
 
       {/* Right side icons */}
       <div className="flex items-center gap-4">
         {/* Mobile: search toggle */}
-        {showSearch ? (
+        {userData.role=="user" && (showSearch ? (
           <RxCross2
             size={25}
             className="text-[#ff4d2d] md:hidden"
@@ -78,20 +79,47 @@ function Nav() {
             className="text-[#ff4d2d] md:hidden"
             onClick={() => setShowSearch(true)}
           />
-        )}
-
+        ))}
+        
+        {/* Owner add item */}
+        {userData.role=="owner" ? <> 
+        <button className=" hidden md:flex items-center gap-1 p-2 cursor-pointer rounded-full bg-[#ff4d2d]/10 text-[#ff4d2d]">
+            <FaPlus size={20} />
+            <span>Add Food item </span>
+        </button>
+        <button className=" md:hidden flex items-center gap-1 p-2 cursor-pointer rounded-full bg-[#ff4d2d]/10 text-[#ff4d2d]">
+            <FaPlus size={20} />
+            
+        </button>
+        <div className="hidden md:flex items-center gap-2 cursor-pointer relative px-3 py-1 rounded-lg bg-[#ff4d2d]/10 text-[#ff4d2d] font-mediums ">
+          <TbReceiptRupee size={20}/>
+          <span>My Order</span>
+          <span className="absolute -right-2 -top-2 text-xs font-bold text-white bg-[#ff4d2d] rounded-full px-[6px] py-[1px]">0</span>
+        </div>
+        <div className=" md:hidden flex items-center gap-2 cursor-pointer relative px-3 py-1 rounded-lg bg-[#ff4d2d]/10 text-[#ff4d2d] font-mediums ">
+          <TbReceiptRupee size={20}/>
+          
+          <span className="absolute -right-2 -top-2 text-xs font-bold text-white bg-[#ff4d2d] rounded-full px-[6px] py-[1px]">0</span>
+        </div>
+        </> : (
+          <>
+            
         {/* Cart */}
-        <div className="relative cursor-pointer">
+        {userData.role=="user" && <div className="relative cursor-pointer">
           <FaShoppingCart size={25} className="text-[#ff4d2d]" />
           <span className="absolute right-[-9px] top-[-12px] text-[#ff4d2d]">
             0
           </span>
-        </div>
+        </div>}
+        
 
         {/* Orders button (desktop only) */}
         <button className="hidden md:block px-3 py-1 rounded-lg bg-[#ff4d2d]/10 text-[#ff4d2d] text-sm font-medium">
           My Orders
         </button>
+          </>
+        )}
+
 
         {/* Profile circle */}
         <div
