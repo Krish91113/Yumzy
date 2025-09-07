@@ -16,6 +16,20 @@ function AddItem(){
     const [frontendImage,setFrontendImage]=useState(null)
     const [backendImage,setBackendImage]=useState(null)
     const dispatch=useDispatch()
+    const [category,setCategory]=useState("")
+    const [foodType,setFoodType]=useState("Veg")
+    const categories = ["Snacks",
+            "Main Course",
+            "Desserts",
+            "Pizza",
+            "Burger",
+            "Sandwiches",
+            "South India",
+            "North Indian",
+            "Chinese",
+            "Italian",
+            "Fast Food",
+            "Street Food","Others"]
     const [price,setPrice]=useState("")
     const handleImage = (e) =>{
         const file = e.target.files[0]
@@ -28,10 +42,13 @@ function AddItem(){
         try {
             const formData = new FormData()
             formData.append("name",name)
+            formData.append("category",category)
+            formData.append("foodType",foodType)
+            formData.append("price",price)
             if(backendImage){
                 formData.append("image",backendImage)
             }
-            const result = await axios.post(`${serverUrl}/api/shop/create-edit`, formData, {withCredentials:true})
+            const result = await axios.post(`${serverUrl}/api/item/add-item`, formData, {withCredentials:true})
             dispatch(setMyShopData(result.data))
             console.log(result.data)
         } catch (error) {   
@@ -61,17 +78,38 @@ function AddItem(){
                     <div>
                         <label htmlFor="" className="block text-sm font-medium text-gray-700 mb-1">Food Image</label>
                         <input type="file" accept="image/*" className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" onChange={handleImage} />
-                        {/* {frontendImage &&
+                        {frontendImage &&
                         <div className="mt-4">
                             <img src={frontendImage} alt=""  className="w-full h-48 object-cover rounded-lg border"/>
                         </div>
-                        } */}
+                        }
                     </div>
                     <div>
                         <label htmlFor="" className="block text-sm font-medium text-gray-700 mb-1">Price</label>
                         <input type="number" placeholder="0" className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" onChange={(e)=>setPrice(e.target.value)} value={price}/>
                     </div>
-                    
+                    <div>
+                        <label htmlFor="" className="block text-sm font-medium text-gray-700 mb-1">Select Food Type</label>
+                        <select className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" onChange={(e)=>setFoodType(e.target.value)} value={foodType}>
+
+                            
+                            
+                                <option value="veg" >Veg</option>
+                                <option value="">Non-Veg</option>
+                           
+                        </select>
+                    </div>
+                    <div>
+                        <label htmlFor="" className="block text-sm font-medium text-gray-700 mb-1">Select Category</label>
+                        <select className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" onChange={(e)=>setCategory(e.target.value)} value={category}>
+
+                            <option value="">select categories</option>
+                            {categories.map((cate,index)=>(
+                                <option value={cate} key={index}>{cate}</option>
+                            ))}
+                        </select>
+                    </div>
+                     
                     <button className="w-full bg-[#ff4d2d] text-white px-6 py-3 rounded-lg font-semibold shadow-md hover:bg-orange-600 hover:shadow-lg transition-all duration-200 cursor-pointer">
                         Save
                     </button>
