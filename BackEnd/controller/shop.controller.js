@@ -30,7 +30,7 @@ export const createEditShop = async (req, res) => {
       shop = await Shop.findByIdAndUpdate(shop._id, updateData, { new: true });
     }
 
-    await shop.populate("owner");
+    await shop.populate("owner items");
     return res.status(201).json(shop);
   } catch (error) {
     console.error("create shop error:", error);

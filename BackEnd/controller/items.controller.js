@@ -21,7 +21,7 @@ export const addItem = async (req, res) => {
       image,
       shop: shop._id,
     });
-    return res.status(200).json(item);
+    return res.status(200).json(shop);
   } catch (error) {
     return res.status(500).json({ message: `add item error ${error}` });
   }
