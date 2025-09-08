@@ -9,7 +9,7 @@ export const addItem = async (req, res) => {
     if (req.file) {
       image = await uploadOnCloudinary(req.file.path);
     }
-    const shop = await Shop.findOne({ owner: req.userId });
+    const shop = await Shop.findOne({ owner: req.userId })
     if (!shop) {
       return res.status(400).json({ message: "Shop not found" });
     }
@@ -21,10 +21,14 @@ export const addItem = async (req, res) => {
       image,
       shop: shop._id,
     });
+    shop.items.push(item._id)
+    await shop.save()
+    await shop.populate("items owner")
     return res.status(200).json(shop);
   } catch (error) {
-    return res.status(500).json({ message: `add item error ${error}` });
-  }
+  console.error("Add Item Error:", error); // <-- log full error
+  return res.status(500).json({ message: `add item error: ${error.message}` });
+}
 };
 
 export const editItem = async (req, res) => {
@@ -49,8 +53,22 @@ export const editItem = async (req, res) => {
     if (!item) {
       return res.status(400).json({ message: "item not found" });
     }
-    return res.status(200).json(item);
+    const shop = await Shop.findOne({owner:req.userId}).populate("items")
+    return res.status(200).json(shop);
   } catch (error) {
     return res.status(500).json({ message: `edit item error ${error}` });
   }
 };
+
+export const getItemById =async (req,res)=>{
+  try {
+    const itemId = req.params.itemId
+    const item =await Item.findById(itemId)
+    if(!item){
+      return res.status(400).json({ message: "item not found" });
+    }
+    return res.status(200).json(item)
+  } catch (error) {
+    return res.status(500).json({ message: `get item error ${error}` });
+  }
+}
