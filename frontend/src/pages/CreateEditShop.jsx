@@ -19,6 +19,7 @@ function CreateEditShop(){
     const [state,setState]=useState(myShopData?.city || currentState)
     const [frontendImage,setFrontendImage]=useState(myShopData?.image || null)
     const [backendImage,setBackendImage]=useState(null)
+    const [loading,setLoading]=useState(false)
     const dispatch=useDispatch()
     const handleImage = (e) =>{
         const file = e.target.files[0]
@@ -28,6 +29,7 @@ function CreateEditShop(){
 
     const handleSubmit = async (e)=>{
         e.preventDefault()
+        setLoading(true)
         try {
             const formData = new FormData()
             formData.append("name",name)
@@ -39,9 +41,11 @@ function CreateEditShop(){
             }
             const result = await axios.post(`${serverUrl}/api/shop/create-edit`, formData, {withCredentials:true})
             dispatch(setMyShopData(result.data))
-            console.log(result.data)
+            setLoading(false)
+            navigate("/")
         } catch (error) {   
             console.log(error)
+            setLoading(false)
         }
     }
     return (
@@ -88,7 +92,7 @@ function CreateEditShop(){
                         <input type="text" placeholder="Enter Shop Adress" className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" onChange={(e)=>setAddress(e.target.value)} value={address} />
                     </div>
                     <button className="w-full bg-[#ff4d2d] text-white px-6 py-3 rounded-lg font-semibold shadow-md hover:bg-orange-600 hover:shadow-lg transition-all duration-200 cursor-pointer">
-                        Save
+                        {loading?<ClipLoader size={20} color="white"/>:"Save"}
                     </button>
                 </form>
             </div>      

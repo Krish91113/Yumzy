@@ -1,23 +1,28 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { FaUtensils } from "react-icons/fa";
 import { useState } from "react";
 import { useRef } from "react";
 import axios from "axios";
 import { serverUrl } from "../App";
 import { setMyShopData } from "../redux/ownerSlice";
+import { ClipLoader } from "react-spinners";
 
-function AddItem(){
+function EditItem(){
     const navigate = useNavigate()
+    const {itemId}=useParams()
+    const [currentItem,setCurrentItem]=useState(null)
     const {myShopData}=useSelector(state=>state.owner)
     const [name,setName]=useState("")
-    const [frontendImage,setFrontendImage]=useState(null)
+    const [price,setPrice]=useState(0)
+    const [frontendImage,setFrontendImage]=useState("")
     const [backendImage,setBackendImage]=useState(null)
     const dispatch=useDispatch()
     const [category,setCategory]=useState("")
-    const [foodType,setFoodType]=useState("Veg")
+    const [foodType,setFoodType]=useState("")
+    const [loading,setLoading]=useState(false)
     const categories = ["Snacks",
             "Main Course",
             "Desserts",
@@ -30,7 +35,6 @@ function AddItem(){
             "Italian",
             "Fast Food",
             "Street Food","Others"]
-    const [price,setPrice]=useState("")
     const handleImage = (e) =>{
         const file = e.target.files[0]
         setBackendImage(file)
@@ -39,6 +43,7 @@ function AddItem(){
 
     const handleSubmit = async (e)=>{
         e.preventDefault()
+        setLoading(true)
         try {
             const formData = new FormData()
             formData.append("name",name)
@@ -48,13 +53,35 @@ function AddItem(){
             if(backendImage){
                 formData.append("image",backendImage)
             }
-            const result = await axios.post(`${serverUrl}/api/item/add-item`, formData, {withCredentials:true})
+            const result = await axios.post(`${serverUrl}/api/item/edit-item/${itemId}`, formData, {withCredentials:true})
             dispatch(setMyShopData(result.data))
-            console.log(result.data)
+            setLoading(false)
+            navigate("/")
         } catch (error) {   
             console.log(error)
+            setLoading(false)
         }
     }
+
+    useEffect(()=>{
+        const handleGetItemById = async ()=>{
+            try {
+                const result=await axios.get(`${serverUrl}/api/item/get-by-id/${itemId}`,{withCredentials:true})
+                setCurrentItem(result.data)
+            } catch (error) {
+                console.log(error)
+            }
+        }
+        handleGetItemById()
+    },[itemId])
+
+    useEffect(()=>{
+        setName(currentItem?.name || "")
+        setPrice(currentItem?.price || 0)
+        setFrontendImage(currentItem?.image || "")
+        setCategory(currentItem?.category || "")
+        setFoodType(currentItem?.foodType || "")
+    },[currentItem])
     return (
         <div className="flex justify-center flex-col items-center p-6 bg-gradient-to-br from-orange-50 relative to-white min-h-screen">
             <div className="absolute top-[20px] left-[20px] z-[10] mb-[10px]">
@@ -67,7 +94,7 @@ function AddItem(){
                         <FaUtensils className="w-16 h-16 text-[#ff4d2d]"/>
                     </div>
                     <div className="text-3xl font-extrabold text-gray-900">
-                        Add Food 
+                        Edit Food 
                     </div>
                 </div>
                 <form className="space-y-5" onSubmit={handleSubmit}>
@@ -95,7 +122,7 @@ function AddItem(){
                             
                             
                                 <option value="veg" >Veg</option>
-                                <option value="">Non-Veg</option>
+                                <option value="non-veg">Non-Veg</option>
                            
                         </select>
                     </div>
@@ -110,8 +137,9 @@ function AddItem(){
                         </select>
                     </div>
                      
-                    <button className="w-full bg-[#ff4d2d] text-white px-6 py-3 rounded-lg font-semibold shadow-md hover:bg-orange-600 hover:shadow-lg transition-all duration-200 cursor-pointer">
-                        Save
+                    <button className="w-full bg-[#ff4d2d] text-white px-6 py-3 rounded-lg font-semibold shadow-md hover:bg-orange-600 hover:shadow-lg transition-all duration-200 cursor-pointer" disabled={loading}>
+                        {loading?<ClipLoader size={20} color="white"/>:"Save"}
+                        
                     </button>
                 </form>
             </div>      
@@ -119,4 +147,4 @@ function AddItem(){
     )
 }
 
-export default AddItem
+export default EditItem
