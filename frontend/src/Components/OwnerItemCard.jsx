@@ -2,7 +2,19 @@ import React from "react";
 import { FaPen } from "react-icons/fa6";
 import { FaTrash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { serverUrl } from "../App";
+import { setMyShopData } from "../redux/ownerSlice";
 function OwnerItemCard({data}){
+
+    const handleDelete =async ()=>{
+        try {
+            const result = await axios.get(`${serverUrl}/api/item/delete/${data._id}`, {withCredentials:true})
+            setMyShopData(result.data)
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
     const navigate = useNavigate()
     return (
@@ -22,8 +34,8 @@ function OwnerItemCard({data}){
                         <div className="p-2 cursor-pointer  rounded-full hover:bg-[#ff4d2d]/10 text-[#ff4d2d] " onClick={()=>navigate(`/edit-item/${data._id}`)}>
                             <FaPen size={16} />
                         </div>
-                        <div className="p-2 cursor-pointer rounded-full hover:bg-[#ff4d2d]/10 text-[#ff4d2d] ">
-                            <FaTrash size={16}/>
+                        <div className="p-2 cursor-pointer rounded-full hover:bg-[#ff4d2d]/10 text-[#ff4d2d] " onClick={handleDelete}>
+                            <FaTrash size={16} />
                         </div>
                     </div>
                     
