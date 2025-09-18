@@ -5,16 +5,23 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { serverUrl } from "../App";
 import { setMyShopData } from "../redux/ownerSlice";
+import { useDispatch } from "react-redux";
 function OwnerItemCard({data}){
+    const dispatch = useDispatch();
+    const handleDelete = async () => {
+  try {
+    const result = await axios.delete(
+      `${serverUrl}/api/item/delete/${data._id}`,
+      { withCredentials: true }
+    );
+    dispatch(setMyShopData(result.data));
+    navigate("/")
+  } catch (error) {
+    console.error(error);
+  }
+};
 
-    const handleDelete =async ()=>{
-        try {
-            const result = await axios.get(`${serverUrl}/api/item/delete/${data._id}`, {withCredentials:true})
-            setMyShopData(result.data)
-        } catch (error) {
-            console.log(error);
-        }
-    }
+
 
     const navigate = useNavigate()
     return (
