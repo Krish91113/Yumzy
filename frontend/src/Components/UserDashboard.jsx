@@ -4,11 +4,12 @@ import { catgories } from "../category";
 import CategoryCard from "./CategoryCard";
 import { FaChevronCircleLeft } from "react-icons/fa";
 import { FaChevronCircleRight } from "react-icons/fa";
+import { useSelector } from "react-redux";
 function UserDashboard(){
     const cateScrollRef = useRef();
     const [showLeftCateButton,setShowLeftCateButton] = useState(false);
     const [showRightCateButton,setShowRightCateButton] = useState(true);
-
+    const {currentCity} = useSelector(state=>state.user);
     const updateButton =(ref,setLeftButton,setRightButton)=>{
         const element =ref.current;
         if(element){
@@ -32,7 +33,14 @@ function UserDashboard(){
                 updateButton(cateScrollRef,setShowLeftCateButton,setShowRightCateButton)
             })
         }
-    },[])
+        return ()=>{
+            if(cateScrollRef.current){
+                cateScrollRef.current.removeEventListener("scroll",()=>{
+                    updateButton(cateScrollRef,setShowLeftCateButton,setShowRightCateButton)
+                })
+            }
+        }
+    },[catgories])
     return (
         <div className="w-screen min-h-screen flex flex-col gap-5 items-center bg-[#fff9f6] overflow-y-auto">
             <Nav/>
@@ -51,9 +59,14 @@ function UserDashboard(){
                     <FaChevronCircleRight size={30} className="text-[#ff4d2d]"/>
                 </button>}      
             </div>
+
         </div>
+
+        <div className="w-full max-w-6xl flex flex-col gap-5 p-[10px] items-start">
+            <h1 className="text-gray-800 text-2xl sm:text-3xl">Best Shop in {currentCity}</h1>
+            
         </div>
-    )
+        </div>)
 }
 
 export default UserDashboard
