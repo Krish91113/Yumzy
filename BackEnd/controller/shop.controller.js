@@ -55,3 +55,16 @@ export const getMyShop = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
+export const getShopByCity =async (req,res)=>{
+  try {
+    const { city } = req.params;
+    const shops = await Shop.find({
+       city : { $regex: new RegExp(`^${city}$`, 'i') }
+       }).populate("owner");
+    return res.status(200).json(shops);
+  } catch (error) {
+    console.error("get shop by city error:", error);
+    return res.status(500).json({ message: error.message });
+  }
+}
