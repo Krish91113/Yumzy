@@ -9,7 +9,8 @@ const userSlice = createSlice({
     currentAddress: null,
     shopInMyCity: [],
     itemInMyCity: [],
-    cartItems: []
+    cartItems: [],
+    totalAmount: 0
   },
   reducers: {
     setUserData: (state, action) => {
@@ -31,34 +32,43 @@ const userSlice = createSlice({
       state.itemInMyCity = action.payload;
     },
 
-    // ✅ Add item to cart
     addToCart: (state, action) => {
       const cartItem = action.payload;
       const existingItem = state.cartItems.find(i => i._id === cartItem._id);
 
       if (existingItem) {
-        // If item already exists → just increase qty
         existingItem.quantity += cartItem.quantity;
       } else {
-        // If new item → push as new
         state.cartItems.push({ ...cartItem, quantity: cartItem.quantity || 1 });
       }
-      console.log("Cart Items:", state.cartItems);
+
+      state.totalAmount = state.cartItems.reduce(
+        (sum, i) => sum + i.price * i.quantity,
+        0
+      );
     },
 
-    // ✅ Update qty
     updateQuantity: (state, action) => {
       const { id, quantity } = action.payload;
       const item = state.cartItems.find(i => i._id === id);
       if (item) {
         item.quantity = quantity;
       }
+
+      state.totalAmount = state.cartItems.reduce(
+        (sum, i) => sum + i.price * i.quantity,
+        0
+      );
     },
 
-    // ✅ Remove item
     removeFromCart: (state, action) => {
       const id = action.payload;
       state.cartItems = state.cartItems.filter(i => i._id !== id);
+
+      state.totalAmount = state.cartItems.reduce(
+        (sum, i) => sum + i.price * i.quantity,
+        0
+      );
     }
   }
 });

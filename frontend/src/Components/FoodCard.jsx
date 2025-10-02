@@ -38,20 +38,22 @@ function FoodCard({ data }) {
   const handleAddToCart = () => {
     if (quantity > 0) {
       dispatch(
-        addToCart({
-          id: data._id, // keep consistent
-          name: data.name,
-          price: data.price,
-          image: data.image,
-          shop: data.shop,
-          quantity,
-          foodType: data.foodType
-        })
-      );
+  addToCart({
+    _id: data._id, // ✅ match Redux slice
+    name: data.name,
+    price: data.price,
+    image: data.image,
+    shop: data.shop,
+    quantity,
+    foodType: data.foodType
+  })
+);
+
     }
   };
 
-  const alreadyInCart = cartItems.some((i) => i.id === data._id);
+  const alreadyInCart = cartItems.some((i) => i._id === data._id);
+
 
   return (
     <div className="group w-[280px] rounded-3xl bg-gradient-to-b from-white to-gray-50 shadow-lg hover:shadow-2xl transition-all duration-500 flex flex-col relative overflow-hidden border border-gray-100 hover:border-[#ff4d2d]/30 hover:-translate-y-2">
