@@ -3,7 +3,9 @@ import { FaDrumstickBite } from "react-icons/fa6";
 import { FaLeaf } from "react-icons/fa";
 import { FaStar } from "react-icons/fa";
 import { FiStar } from "react-icons/fi";
-import { FaPlus, FaMinus, FaShoppingCart } from "react-icons/fa6";
+import { FaPlus } from "react-icons/fa6"; 
+import { FaMinus } from "react-icons/fa";
+import { FaShoppingCart } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../redux/userSlice";
 
