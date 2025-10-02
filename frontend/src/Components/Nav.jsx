@@ -95,11 +95,12 @@ function Nav() {
             />
           ))}
 
-        {/* Owner add item */}
+        {/* Owner role */}
         {userData?.role === "owner" ? (
           <>
             {myShopData && (
               <>
+                {/* Add Item button */}
                 <button
                   className="hidden md:flex items-center gap-1 p-2 cursor-pointer rounded-full bg-[#ff4d2d]/10 text-[#ff4d2d]"
                   onClick={() => navigate("/add-item")}
@@ -112,6 +113,20 @@ function Nav() {
                   className="md:hidden flex items-center gap-1 p-2 cursor-pointer rounded-full bg-[#ff4d2d]/10 text-[#ff4d2d]"
                 >
                   <FaPlus size={20} />
+                </button>
+
+                {/* My Orders for Owner */}
+                <button
+                  className="hidden md:block px-3 py-1 rounded-lg bg-[#ff4d2d]/10 text-[#ff4d2d] text-sm font-medium"
+                  onClick={() => navigate("/my-orders")}
+                >
+                  My Orders
+                </button>
+                <button
+                  className="md:hidden flex items-center gap-1 p-2 cursor-pointer rounded-full bg-[#ff4d2d]/10 text-[#ff4d2d]"
+                  onClick={() => navigate("/my-orders")}
+                >
+                  <TbReceiptRupee size={20} />
                 </button>
               </>
             )}
@@ -133,7 +148,10 @@ function Nav() {
 
             {/* Orders button (desktop only) */}
             {userData?.role === "user" && (
-              <button className="hidden md:block px-3 py-1 rounded-lg bg-[#ff4d2d]/10 text-[#ff4d2d] text-sm font-medium">
+              <button
+                className="hidden md:block px-3 py-1 rounded-lg bg-[#ff4d2d]/10 text-[#ff4d2d] text-sm font-medium"
+                onClick={() => navigate("/my-orders")}
+              >
                 My Orders
               </button>
             )}
@@ -155,7 +173,18 @@ function Nav() {
               {userData?.fullName}
             </div>
             {userData?.role === "user" && (
-              <div className="md:hidden text-[#ff4d2d] font-semibold cursor-pointer">
+              <div
+                className="md:hidden text-[#ff4d2d] font-semibold cursor-pointer"
+                onClick={() => navigate("/my-orders")}
+              >
+                My Orders
+              </div>
+            )}
+            {userData?.role === "owner" && (
+              <div
+                className="md:hidden text-[#ff4d2d] font-semibold cursor-pointer"
+                onClick={() => navigate("/my-orders")}
+              >
                 My Orders
               </div>
             )}
