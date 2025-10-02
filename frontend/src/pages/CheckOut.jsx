@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { MdDeliveryDining } from "react-icons/md";
 import { FaMobileScreen } from "react-icons/fa6";
+import { serverUrl } from "../App";
 
 function RecenterMap({ location }) {
   const map = useMap();
@@ -66,6 +67,24 @@ function CheckOut() {
     }
   };
 
+    const handlePlaceOrder=async()=>{
+        try {
+            const result=await axios.post(`${serverUrl}/api/order/place-order`, {
+                paymentMethod,
+                totalAmount,
+                deliveryAddress:{
+                    text:addressInput,
+                    latitude:location.lat,
+                    longitude:location.lon
+                },
+                cartItems
+            },{withCredentials:true})
+            console.log(result.data)
+            navigate("/order-placed")
+        } catch (error) {
+            console.log(error)
+        }
+    }
   const getLatLngByAddress = async () => {
     try {
       const result = await axios.get(
@@ -277,7 +296,7 @@ function CheckOut() {
                       </div>
                     </div>
 
-                    <button className="w-full bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 hover:from-green-600 hover:via-emerald-600 hover:to-teal-600 text-white font-bold text-lg py-5 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 active:scale-95 flex items-center justify-center gap-3">
+                    <button className="w-full bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 hover:from-green-600 hover:via-emerald-600 hover:to-teal-600 text-white font-bold text-lg py-5 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 active:scale-95 flex items-center justify-center gap-3" onClick={handlePlaceOrder}>
                       <span className="text-2xl">🍽️</span>
                      {paymentMethod=="cod"?"Place Order" : "Pay & Place Order"}
                     </button>
