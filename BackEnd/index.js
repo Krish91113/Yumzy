@@ -9,14 +9,14 @@ import cors from "cors";
 import userRouter from "./routes/user.routes.js";
 import shopRouter from "./routes/shop.route.js";
 import itemRouter from "./routes/item.routes.js";
+import orderRouter from "./routes/order.routes.js";
 
 const app = express();
 const port = process.env.PORT || 5000;
 
-// ✅ Allow frontend CORS (update if your frontend runs on different port)
 app.use(
   cors({
-    origin: "http://localhost:5173", 
+    origin: "http://localhost:5173",
     credentials: true,
   })
 );
@@ -29,8 +29,8 @@ app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
 app.use("/api/shop", shopRouter);
 app.use("/api/item", itemRouter);
+app.use("/api/order", orderRouter);
 
-// ✅ Start server after DB connects
 connectDb().then(() => {
   app.listen(port, () => {
     console.log(`🚀 Server running on port ${port}`);
