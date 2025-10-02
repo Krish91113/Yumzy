@@ -9,7 +9,9 @@ import "leaflet/dist/leaflet.css";
 import { setAddress, setLocation } from "../redux/mapSlice";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-
+import { FaCreditCard } from "react-icons/fa6";
+import { MdDeliveryDining } from "react-icons/md";
+import { FaMobileScreen } from "react-icons/fa6";
 function RecenterMap({ location }) {
   const map = useMap();
   useEffect(() => {
@@ -21,51 +23,71 @@ function RecenterMap({ location }) {
   return null;
 }
 
-
 function CheckOut() {
   const { location, address } = useSelector((state) => state.map);
+  const { cartItems } = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [addressInput,setAddressInput]=useState("")
-  const apiKey = import.meta.env.VITE_GEOAPIKEY
+  const [paymentMethod, setPaymentMethod] = useState("cod");
+  const [addressInput, setAddressInput] = useState("");
+  const apiKey = import.meta.env.VITE_GEOAPIKEY;
+
   // ✅ Handle drag and update Redux
   const onDragEnd = (e) => {
     const { lat, lng } = e.target.getLatLng();
-    dispatch(setLocation({ lat, lon: lng })); // FIX: use `lon` not `long`
-    getAddressByLatLng(lat,lng)
+    dispatch(setLocation({ lat, lon: lng }));
+    getAddressByLatLng(lat, lng);
   };
-  const getCurrentLocation=()=>{
-         navigator.geolocation.getCurrentPosition(async (position) =>{
-            const latitude=position.coords.latitude
-            const longitude=position.coords.longitude
-            dispatch(setLocation({lat:latitude,lon:longitude}))
-            getAddressByLatLng(latitude,longitude)    
-        })
-            
-         }
 
-  const getAddressByLatLng=async(lat,lng)=>{
+  // ✅ Get current location from browser
+  const getCurrentLocation = () => {
+    navigator.geolocation.getCurrentPosition((position) => {
+      const latitude = position.coords.latitude;
+      const longitude = position.coords.longitude;
+      dispatch(setLocation({ lat: latitude, lon: longitude }));
+      getAddressByLatLng(latitude, longitude);
+    });
+  };
+
+  // ✅ Reverse geocoding
+  const getAddressByLatLng = async (lat, lng) => {
     try {
-        const result=await axios.get(`https://api.geoapify.com/v1/geocode/reverse?lat=${lat}&lon=${lng}&format=json&apiKey=${apiKey}`)
- 
-        dispatch(setAddress(result?.data?.results[0].address_line2))
+      const result = await axios.get(
+        `https://api.geoapify.com/v1/geocode/reverse?lat=${lat}&lon=${lng}&format=json&apiKey=${apiKey}`
+      );
+
+      const addr =
+        result?.data?.results?.[0]?.formatted ||
+        result?.data?.results?.[0]?.address_line1 ||
+        "Unknown location";
+
+      dispatch(setAddress(addr));
     } catch (error) {
-        console.log(error)
+      console.log(error);
     }
-  }
-  
-  const getLatLngByAddress =async()=>{
+  };
+
+  // ✅ Forward geocoding
+  const getLatLngByAddress = async () => {
     try {
-        const result =await axios.get( `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(addressInput)}&apiKey=${apiKey}`)
-        console.log(result)
+      const result = await axios.get(
+        `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(
+          addressInput
+        )}&apiKey=${apiKey}`
+      );
+
+      const { lat, lon } = result.data.features[0].properties;
+      dispatch(setLocation({ lat, lon }));
     } catch (error) {
-        console.log(error)
+      console.log(error);
     }
-  }
-  
-  useEffect(()=>{
-    setAddressInput(address)
-  },[address])
+  };
+
+  useEffect(() => {
+    if (address) {
+      setAddressInput(address);
+    }
+  }, [address]);
 
   return (
     <div className="min-h-screen bg-[#fff9f6] flex items-center p-6 justify-center">
@@ -96,18 +118,20 @@ function CheckOut() {
               className="flex-1 border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#ff4d2d]"
               type="text"
               placeholder="Enter your delivery address"
-              value={addressInput || ""} // FIX: show address if available
-              onChange={(e) => {
-                // Optional: if you have setAddress in Redux
-                // dispatch(setAddress(e.target.value));
-                setAddressInput(e.target.value)
-              }}
+              value={addressInput || ""}
+              onChange={(e) => setAddressInput(e.target.value)}
             />
-            <button className="bg-[#ff4d2d] hover:bg-[#ff4d2d] text-white px-3 py-2 rounded-lg flex items-center justify-center" onClick={getLatLngByAddress}>
+            <button
+              className="bg-[#ff4d2d] hover:bg-[#ff4d2d] text-white px-3 py-2 rounded-lg flex items-center justify-center"
+              onClick={getLatLngByAddress}
+            >
               <FaSearch size={18} />
             </button>
-            <button className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg flex items-center justify-center" onClick={getCurrentLocation}>
-              <BiCurrentLocation size={18}  />
+            <button
+              className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg flex items-center justify-center"
+              onClick={getCurrentLocation}
+            >
+              <BiCurrentLocation size={18} />
             </button>
           </div>
 
@@ -136,6 +160,52 @@ function CheckOut() {
               )}
             </div>
           </div>
+        </section>
+
+        {/* Payment Method */}
+        <section>
+          <h2 className="text-lg font-semibold mb-3">Payment Method</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div
+              className={`flex items-center gap-3 rounded-xl border p-4 text-left transition ${
+                paymentMethod === "cod"
+                  ? "border-[#ff4d2d] bg-orange-50 shadow"
+                  : "border-gray-200 hover:border-gray-300"
+              }`}
+              onClick={() => setPaymentMethod("cod")}
+            >
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-green-100">
+                    <MdDeliveryDining className="text-green-600 text-xl"/>
+                </span>
+                <div>
+                    <p className="font-medium text-gray-800">Cash on Delivery</p>
+                    <p className="text-xs text-gray-400">Pay when your Food arrives</p>
+                </div>
+              
+            </div>
+            <div
+              className={`flex items-center gap-3 rounded-xl border p-4 text-left transition ${
+                paymentMethod === "online"
+                  ? "border-[#ff4d2d] bg-orange-50 shadow"
+                  : "border-gray-200 hover:border-gray-300"
+              }`}
+              onClick={() => setPaymentMethod("online")}
+            >
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-purple-100"><FaMobileScreen className="text-purple-700 text-xl" /></span>
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-blue-100"><FaCreditCard className="text-blue-700 text-xl" /></span>
+             <div>
+                <p className="font-medium text-gray-800"> UPI/Credit/Debit</p>
+                <p className="text-xs text-gray-400">Pay Securely Online</p>
+             </div>
+            </div>
+          </div>
+        </section>
+
+        <section>
+            <h2 className="text-lg text-gray-800 font-semibold mb-3">Order Summary</h2>
+            <div className="rounded-xl bg-gray-50 p-4 sy-2">
+
+            </div>
         </section>
       </div>
     </div>
