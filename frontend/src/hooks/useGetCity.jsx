@@ -3,7 +3,7 @@ import React, { useEffect } from "react";
 import { serverUrl } from "../App";
 import { useDispatch, useSelector } from "react-redux";
 import {  setCurrentAddress, setCurrentCity, setCurrentState, setUserData } from "../redux/userSlice";
-import { setAdress, setLocation } from "../redux/mapSlice";
+import { setAddress, setLocation } from "../redux/mapSlice";
 
 function useGetCity(){
     const dispatch=useDispatch()
@@ -18,7 +18,7 @@ function useGetCity(){
             dispatch(setCurrentCity(result?.data?.results[0].city))
             dispatch(setCurrentState(result?.data?.results[0].state))
             dispatch(setCurrentAddress(result?.data?.results[0].address_line2 || result?.data?.results[0].address_line1))
-            dispatch(setAdress(result?.data?.results[0].address_line2))
+            dispatch(setAddress(result?.data?.results[0].address_line2))
         })
     },[userData])
 }
