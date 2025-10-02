@@ -69,3 +69,13 @@ export const placeOrder = async (req, res) => {
     return res.status(500).json({ message: `place order error ${error.message}` });
   }
 };
+
+
+export const getUserOrder =async (req,res)=>{
+    try {
+        const order=await Order.find({user:req.userId})
+        .sort({createdAt:-1})
+    } catch (error) {
+        
+    }
+}
