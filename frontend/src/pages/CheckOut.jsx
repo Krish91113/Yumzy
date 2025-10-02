@@ -6,8 +6,9 @@ import { BiCurrentLocation } from "react-icons/bi";
 import { MapContainer, Marker, TileLayer, useMap } from "react-leaflet";
 import { useDispatch, useSelector } from "react-redux";
 import "leaflet/dist/leaflet.css";
-import { setLocation } from "../redux/mapSlice";
+import { setAddress, setLocation } from "../redux/mapSlice";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 function RecenterMap({ location }) {
   const map = useMap();
@@ -20,16 +21,51 @@ function RecenterMap({ location }) {
   return null;
 }
 
+
 function CheckOut() {
   const { location, address } = useSelector((state) => state.map);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
+  const [addressInput,setAddressInput]=useState("")
+  const apiKey = import.meta.env.VITE_GEOAPIKEY
   // ✅ Handle drag and update Redux
   const onDragEnd = (e) => {
     const { lat, lng } = e.target.getLatLng();
     dispatch(setLocation({ lat, lon: lng })); // FIX: use `lon` not `long`
+    getAddressByLatLng(lat,lng)
   };
+  const getCurrentLocation=()=>{
+         navigator.geolocation.getCurrentPosition(async (position) =>{
+            const latitude=position.coords.latitude
+            const longitude=position.coords.longitude
+            dispatch(setLocation({lat:latitude,lon:longitude}))
+            getAddressByLatLng(latitude,longitude)    
+        })
+            
+         }
+
+  const getAddressByLatLng=async(lat,lng)=>{
+    try {
+        const result=await axios.get(`https://api.geoapify.com/v1/geocode/reverse?lat=${lat}&lon=${lng}&format=json&apiKey=${apiKey}`)
+ 
+        dispatch(setAddress(result?.data?.results[0].address_line2))
+    } catch (error) {
+        console.log(error)
+    }
+  }
+  
+  const getLatLngByAddress =async()=>{
+    try {
+        const result =await axios.get( `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(addressInput)}&apiKey=${apiKey}`)
+        console.log(result)
+    } catch (error) {
+        console.log(error)
+    }
+  }
+  
+  useEffect(()=>{
+    setAddressInput(address)
+  },[address])
 
   return (
     <div className="min-h-screen bg-[#fff9f6] flex items-center p-6 justify-center">
@@ -60,17 +96,18 @@ function CheckOut() {
               className="flex-1 border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#ff4d2d]"
               type="text"
               placeholder="Enter your delivery address"
-              value={address || ""} // FIX: show address if available
+              value={addressInput || ""} // FIX: show address if available
               onChange={(e) => {
                 // Optional: if you have setAddress in Redux
                 // dispatch(setAddress(e.target.value));
+                setAddressInput(e.target.value)
               }}
             />
-            <button className="bg-[#ff4d2d] hover:bg-[#ff4d2d] text-white px-3 py-2 rounded-lg flex items-center justify-center">
+            <button className="bg-[#ff4d2d] hover:bg-[#ff4d2d] text-white px-3 py-2 rounded-lg flex items-center justify-center" onClick={getLatLngByAddress}>
               <FaSearch size={18} />
             </button>
-            <button className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg flex items-center justify-center">
-              <BiCurrentLocation size={18} />
+            <button className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg flex items-center justify-center" onClick={getCurrentLocation}>
+              <BiCurrentLocation size={18}  />
             </button>
           </div>
 
