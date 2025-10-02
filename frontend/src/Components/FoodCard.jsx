@@ -6,9 +6,13 @@ import { FiStar } from "react-icons/fi";
 import { FaPlus } from "react-icons/fa6";
 import { FaMinus } from "react-icons/fa";
 import { FaShoppingCart } from "react-icons/fa";
+import { useDispatch, useSelector } from "react-redux";
+import { addToCart } from "../redux/userSlice";
 
 function FoodCard({data}){
     const [quantity,setQuantity]=useState(0);
+    const dispatch=useDispatch()
+    const {cartItems}=useSelector(state=>state.user)
     const renderStars=(rating)=>{
         const stars=[];
         for(let i=1;i<=5;i++){
@@ -109,7 +113,15 @@ function FoodCard({data}){
                         <FaPlus size={14} className="text-gray-600"/>
                     </button>
                     
-                    <button className="bg-gradient-to-r from-[#ff4d2d] to-[#ff6b4d] text-white px-4 py-2.5 transition-all duration-300 hover:from-[#ff6b4d] hover:to-[#ff4d2d] active:scale-95 flex items-center gap-2">
+                    <button className={`bg-gradient-to-r ${cartItems.some(i=>i._id==data._id)?"bg-gray-900": "bg-[#ff4d2d]"} text-white px-4 py-2.5 transition-all duration-300 hover:from-[#ff6b4d] hover:to-[#ff4d2d] active:scale-95 flex items-center gap-2`} onClick={()=>dispatch(addToCart({
+                        id:data._id,
+                        name:data.name,
+                        price:data.price,
+                        image:data.image,
+                        shop:data.shop,
+                        quantity,
+                        foodType:data.foodType,
+                    }))}>
                         <FaShoppingCart size={16}/>
                         {quantity > 0 && (
                             <span className="bg-white text-[#ff4d2d] text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
