@@ -30,15 +30,35 @@ const userSlice = createSlice({
     setItemsInMyCity: (state, action) => {
       state.itemInMyCity = action.payload;
     },
+
+    // ✅ Add item to cart
     addToCart: (state, action) => {
       const cartItem = action.payload;
-      const existingItem = state.cartItems.find(i => i.id === cartItem.id);
+      const existingItem = state.cartItems.find(i => i._id === cartItem._id);
+
       if (existingItem) {
+        // If item already exists → just increase qty
         existingItem.quantity += cartItem.quantity;
       } else {
-        state.cartItems.push(cartItem);
+        // If new item → push as new
+        state.cartItems.push({ ...cartItem, quantity: cartItem.quantity || 1 });
       }
       console.log("Cart Items:", state.cartItems);
+    },
+
+    // ✅ Update qty
+    updateQuantity: (state, action) => {
+      const { id, quantity } = action.payload;
+      const item = state.cartItems.find(i => i._id === id);
+      if (item) {
+        item.quantity = quantity;
+      }
+    },
+
+    // ✅ Remove item
+    removeFromCart: (state, action) => {
+      const id = action.payload;
+      state.cartItems = state.cartItems.filter(i => i._id !== id);
     }
   }
 });
@@ -50,7 +70,9 @@ export const {
   setCurrentAddress,
   setShopsInMyCity,
   setItemsInMyCity,
-  addToCart
+  addToCart,
+  updateQuantity,
+  removeFromCart
 } = userSlice.actions;
 
 export default userSlice.reducer;
