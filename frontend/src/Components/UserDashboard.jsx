@@ -2,13 +2,15 @@ import React, { useEffect, useRef, useState } from "react";
 import Nav from "./Nav";
 import { catgories } from "../category";
 import CategoryCard from "./CategoryCard";
+import FoodCard from "./FoodCard";
 import { FaChevronCircleLeft, FaChevronCircleRight } from "react-icons/fa";
 import { useSelector } from "react-redux";
-import useGetShopByCity from "../hooks/useGetShopByCity"; // make sure path is correct
-import FoodCard from "./FoodCard";
+import useGetShopByCity from "../hooks/useGetShopByCity";
+import useGetItemsByCity from "../hooks/useGetItemsByCity";
 
 function UserDashboard() {
-  useGetShopByCity(); // fetch shops safely
+  useGetShopByCity(); // fetch shops
+  useGetItemsByCity(); // fetch food items
 
   const cateScrollRef = useRef();
   const shopScrollRef = useRef();
@@ -17,7 +19,7 @@ function UserDashboard() {
   const [showLeftShopButton, setShowLeftShopButton] = useState(false);
   const [showRightShopButton, setShowRightShopButton] = useState(false);
 
-  const { currentCity, shopInMyCity, itemsInMyCity } = useSelector(state => state.user);
+  const { currentCity, shopInMyCity, itemInMyCity } = useSelector(state => state.user);
 
   const updateButton = (ref, setLeftButton, setRightButton) => {
     const element = ref.current;
@@ -48,8 +50,7 @@ function UserDashboard() {
     if (cateEl) cateEl.addEventListener("scroll", handleScroll);
     if (shopEl) shopEl.addEventListener("scroll", handleScroll);
 
-    // initial check
-    handleScroll();
+    handleScroll(); // initial
 
     return () => {
       if (cateEl) cateEl.removeEventListener("scroll", handleScroll);
@@ -61,7 +62,7 @@ function UserDashboard() {
     <div className="w-screen min-h-screen flex flex-col gap-5 items-center bg-[#fff9f6] overflow-y-auto">
       <Nav />
 
-      {/* Categories Section */}
+      {/* Categories */}
       <div className="w-full max-w-6xl flex flex-col gap-5 p-[10px] items-start">
         <h1 className="text-gray-800 text-2xl sm:text-3xl">Inspiration for your first order</h1>
         <div className="w-full relative">
@@ -89,7 +90,7 @@ function UserDashboard() {
         </div>
       </div>
 
-      {/* Shops Section */}
+      {/* Shops */}
       <div className="w-full max-w-6xl flex flex-col gap-5 p-[10px] items-start">
         <h1 className="text-gray-800 text-2xl sm:text-3xl">Best Shop in {currentCity || "your city"}</h1>
         <div className="w-full relative">
@@ -120,15 +121,19 @@ function UserDashboard() {
           )}
         </div>
       </div>
-      {/*Products*/}
 
+      {/* Food Items */}
       <div className="w-full max-w-6xl flex flex-col gap-5 p-[10px] items-start">
-          <h1 className="text-gray-800 text-2xl sm:text-3xl">Suggested Food items </h1>
-          <div className="w-full h-auto flex flex-wrap gap-[20px] justify-center ">
-          {itemsInMyCity?.map((item,index)=>{
-            <FoodCard key={index} data={item} />
-          })}
-          </div>
+        <h1 className="text-gray-800 text-2xl sm:text-3xl">Suggested Food items</h1>
+        <div className="w-full h-auto flex flex-wrap gap-[20px] justify-center">
+          {itemInMyCity?.length > 0 ? (
+            itemInMyCity.map((item, index) => (
+              <FoodCard key={index} data={item} />
+            ))
+          ) : (
+            <p className="text-gray-500">No items found in this city.</p>
+          )}
+        </div>
       </div>
     </div>
   );
