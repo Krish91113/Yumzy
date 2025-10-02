@@ -9,18 +9,34 @@ import useGetShopByCity from "../hooks/useGetShopByCity";
 import useGetItemsByCity from "../hooks/useGetItemsByCity";
 
 function UserDashboard() {
-  useGetShopByCity(); // fetch shops
-  useGetItemsByCity(); // fetch food items
+  // Custom hook to fetch shops based on current city
+  useGetShopByCity();
+  
+  // Custom hook to fetch food items based on current city
+  useGetItemsByCity();
 
+  // Reference for category carousel scroll container
   const cateScrollRef = useRef();
+  
+  // Reference for shop carousel scroll container
   const shopScrollRef = useRef();
+  
+  // State to show/hide left scroll button for categories
   const [showLeftCateButton, setShowLeftCateButton] = useState(false);
+  
+  // State to show/hide right scroll button for categories
   const [showRightCateButton, setShowRightCateButton] = useState(true);
+  
+  // State to show/hide left scroll button for shops
   const [showLeftShopButton, setShowLeftShopButton] = useState(false);
+  
+  // State to show/hide right scroll button for shops
   const [showRightShopButton, setShowRightShopButton] = useState(false);
 
+  // Get current city, shops and items from Redux store
   const { currentCity, shopInMyCity, itemInMyCity } = useSelector(state => state.user);
 
+  // Function to update scroll button visibility based on scroll position
   const updateButton = (ref, setLeftButton, setRightButton) => {
     const element = ref.current;
     if (element) {
@@ -29,6 +45,7 @@ function UserDashboard() {
     }
   };
 
+  // Function to handle smooth scrolling left or right
   const scrollHandler = (ref, direction) => {
     if (ref.current) {
       ref.current.scrollBy({
@@ -38,20 +55,26 @@ function UserDashboard() {
     }
   };
 
+  // Effect to set up scroll event listeners and update button visibility
   useEffect(() => {
+    // Handler function to update all scroll buttons
     const handleScroll = () => {
       updateButton(cateScrollRef, setShowLeftCateButton, setShowRightCateButton);
       updateButton(shopScrollRef, setShowLeftShopButton, setShowRightShopButton);
     };
 
+    // Get current element references
     const cateEl = cateScrollRef.current;
     const shopEl = shopScrollRef.current;
 
+    // Add scroll event listeners
     if (cateEl) cateEl.addEventListener("scroll", handleScroll);
     if (shopEl) shopEl.addEventListener("scroll", handleScroll);
 
-    handleScroll(); // initial
+    // Initial button state update
+    handleScroll();
 
+    // Cleanup: remove event listeners on unmount
     return () => {
       if (cateEl) cateEl.removeEventListener("scroll", handleScroll);
       if (shopEl) shopEl.removeEventListener("scroll", handleScroll);
@@ -59,184 +82,218 @@ function UserDashboard() {
   }, [catgories]);
 
   return (
-    <div className="w-screen min-h-screen flex flex-col gap-8 items-center bg-gradient-to-br from-orange-50 via-white to-red-50 overflow-y-auto relative">
-      {/* Decorative background elements using Tailwind only */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        {/* Top-left gradient circle */}
-        <div className="absolute -top-40 -left-40 w-96 h-96 bg-orange-200 opacity-30 rounded-full blur-3xl"></div>
-        {/* Bottom-right gradient circle */}
-        <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-red-200 opacity-30 rounded-full blur-3xl"></div>
-        {/* Center decorative element */}
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-r from-orange-100 via-transparent to-red-100 opacity-40 rounded-full blur-3xl"></div>
+    <div className="w-screen min-h-screen flex flex-col gap-10 items-center bg-gradient-to-br from-orange-50 via-red-50 to-pink-50 overflow-y-auto relative">
+      {/* Decorative background elements - floating gradient orbs for visual appeal */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        {/* Top-left decorative gradient circle */}
+        <div className="absolute -top-48 -left-48 w-[500px] h-[500px] bg-orange-300 opacity-20 rounded-full blur-3xl animate-pulse"></div>
+        
+        {/* Bottom-right decorative gradient circle */}
+        <div className="absolute -bottom-48 -right-48 w-[500px] h-[500px] bg-pink-300 opacity-20 rounded-full blur-3xl animate-pulse"></div>
+        
+        {/* Center decorative gradient element */}
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[900px] h-[900px] bg-gradient-to-r from-orange-200 via-transparent to-red-200 opacity-10 rounded-full blur-3xl"></div>
       </div>
 
-      {/* Navigation Component */}
-      <Nav />
+      {/* Navigation Component - sticky header */}
+      <div className="w-full sticky top-0 z-50">
+        <Nav />
+      </div>
 
-      {/* Categories Section */}
-      <div className="w-full max-w-7xl flex flex-col gap-6 px-6 lg:px-8 items-start relative z-10">
-        {/* Section Header with gradient text and decorative line */}
+      {/* Categories Section - horizontal scrollable carousel */}
+      <div className="w-full max-w-7xl flex flex-col gap-8 px-4 sm:px-6 lg:px-8 items-start relative z-10">
+        {/* Section Header with gradient text and animated underline */}
         <div className="flex items-center gap-4 w-full">
-          <div className="flex flex-col gap-2">
-            <h1 className="text-gray-800 text-3xl sm:text-4xl font-bold">
-              <span className="bg-gradient-to-r from-gray-900 via-gray-700 to-gray-800 bg-clip-text text-transparent">
+          <div className="flex flex-col gap-3">
+            {/* Main heading with gradient text effect */}
+            <h1 className="text-gray-800 text-3xl sm:text-4xl lg:text-5xl font-extrabold">
+              <span className="bg-gradient-to-r from-gray-900 via-gray-700 to-gray-900 bg-clip-text text-transparent">
                 Inspiration for your first order
               </span>
             </h1>
-            {/* Animated underline */}
-            <div className="h-1 w-24 bg-gradient-to-r from-orange-500 to-red-500 rounded-full transform transition-all duration-300 hover:w-32"></div>
+            
+            {/* Animated underline decoration */}
+            <div className="h-1.5 w-28 bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 rounded-full shadow-lg"></div>
           </div>
-          {/* Decorative element */}
+          
+          {/* Decorative divider line - hidden on mobile */}
           <div className="hidden sm:flex flex-1 items-center ml-8">
-            <div className="h-0.5 flex-1 bg-gradient-to-r from-orange-200 via-orange-100 to-transparent"></div>
+            <div className="h-0.5 flex-1 bg-gradient-to-r from-orange-300 via-red-200 to-transparent rounded-full"></div>
           </div>
         </div>
         
-        {/* Categories Carousel Container */}
+        {/* Categories Carousel Container with scroll buttons */}
         <div className="w-full relative group">
-          {/* Left scroll button with enhanced styling */}
+          {/* Left scroll button - shows on hover when content is scrollable */}
           {showLeftCateButton && (
             <button
-              className="absolute left-0 top-1/2 -translate-y-1/2 bg-white bg-opacity-95 backdrop-blur-sm rounded-full p-3 z-20 shadow-xl hover:shadow-2xl transform hover:scale-110 transition-all duration-300 opacity-0 group-hover:opacity-100 border border-orange-100"
+              className="absolute left-0 top-1/2 -translate-y-1/2 bg-white/95 backdrop-blur-md rounded-full p-4 z-20 shadow-2xl hover:shadow-3xl transform hover:scale-110 transition-all duration-300 opacity-0 group-hover:opacity-100 border-2 border-orange-200 hover:border-orange-400"
               onClick={() => scrollHandler(cateScrollRef, "left")}
+              aria-label="Scroll categories left"
             >
-              <FaChevronCircleLeft size={28} className="text-orange-500 drop-shadow-sm hover:text-red-500 transition-colors" />
+              <FaChevronCircleLeft size={32} className="text-orange-500 drop-shadow-md hover:text-red-500 transition-colors duration-300" />
             </button>
           )}
           
-          {/* Categories scroll container with Tailwind scrollbar utilities */}
+          {/* Categories scroll container - horizontal scrolling with hidden scrollbar */}
           <div 
-            className="w-full flex gap-5 overflow-x-auto pb-4 scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" 
+            className="w-full flex gap-6 overflow-x-auto pb-6 scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" 
             ref={cateScrollRef}
           >
+            {/* Map through categories and render CategoryCard for each */}
             {catgories.map((cate, index) => (
               <div 
                 key={index}
-                className="transform transition-all duration-300 hover:scale-105 hover:-translate-y-1"
+                className="transform transition-all duration-300 hover:scale-110 hover:-translate-y-2 cursor-pointer"
               >
                 <CategoryCard name={cate.category} image={cate.image} />
               </div>
             ))}
           </div>
           
-          {/* Right scroll button with enhanced styling */}
+          {/* Right scroll button - shows on hover when content is scrollable */}
           {showRightCateButton && (
             <button
-              className="absolute right-0 top-1/2 -translate-y-1/2 bg-white bg-opacity-95 backdrop-blur-sm rounded-full p-3 z-20 shadow-xl hover:shadow-2xl transform hover:scale-110 transition-all duration-300 opacity-0 group-hover:opacity-100 border border-orange-100"
+              className="absolute right-0 top-1/2 -translate-y-1/2 bg-white/95 backdrop-blur-md rounded-full p-4 z-20 shadow-2xl hover:shadow-3xl transform hover:scale-110 transition-all duration-300 opacity-0 group-hover:opacity-100 border-2 border-orange-200 hover:border-orange-400"
               onClick={() => scrollHandler(cateScrollRef, "right")}
+              aria-label="Scroll categories right"
             >
-              <FaChevronCircleRight size={28} className="text-orange-500 drop-shadow-sm hover:text-red-500 transition-colors" />
+              <FaChevronCircleRight size={32} className="text-orange-500 drop-shadow-md hover:text-red-500 transition-colors duration-300" />
             </button>
           )}
           
-          {/* Gradient fade edges for better visual */}
-          <div className="absolute left-0 top-0 bottom-4 w-8 bg-gradient-to-r from-white via-white to-transparent pointer-events-none z-10 opacity-80"></div>
-          <div className="absolute right-0 top-0 bottom-4 w-8 bg-gradient-to-l from-white via-white to-transparent pointer-events-none z-10 opacity-80"></div>
+          {/* Gradient fade edges for smooth visual transition */}
+          <div className="absolute left-0 top-0 bottom-6 w-12 bg-gradient-to-r from-orange-50 via-red-50 to-transparent pointer-events-none z-10"></div>
+          <div className="absolute right-0 top-0 bottom-6 w-12 bg-gradient-to-l from-orange-50 via-red-50 to-transparent pointer-events-none z-10"></div>
         </div>
       </div>
 
-      {/* Shops Section with enhanced styling */}
-      <div className="w-full max-w-7xl flex flex-col gap-6 px-6 lg:px-8 items-start relative z-10">
-        {/* Section header with city highlight */}
+      {/* Shops Section - horizontal scrollable carousel showing shops in current city */}
+      <div className="w-full max-w-7xl flex flex-col gap-8 px-4 sm:px-6 lg:px-8 items-start relative z-10">
+        {/* Section header with city name highlighted */}
         <div className="flex items-center gap-4 w-full">
-          <div className="flex flex-col gap-2">
-            <h1 className="text-gray-800 text-3xl sm:text-4xl font-bold">
+          <div className="flex flex-col gap-3">
+            {/* Main heading with dynamic city name */}
+            <h1 className="text-gray-800 text-3xl sm:text-4xl lg:text-5xl font-extrabold">
               Best Shops in{" "}
-              <span className="bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent font-extrabold">
+              <span className="bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 bg-clip-text text-transparent font-black drop-shadow-sm">
                 {currentCity || "your city"}
               </span>
             </h1>
-            <div className="h-1 w-24 bg-gradient-to-r from-red-500 to-orange-500 rounded-full transform transition-all duration-300 hover:w-32"></div>
+            
+            {/* Animated underline decoration with reverse gradient */}
+            <div className="h-1.5 w-28 bg-gradient-to-r from-pink-500 via-red-500 to-orange-500 rounded-full shadow-lg"></div>
           </div>
+          
+          {/* Decorative divider line - hidden on mobile */}
           <div className="hidden sm:flex flex-1 items-center ml-8">
-            <div className="h-0.5 flex-1 bg-gradient-to-r from-red-200 via-red-100 to-transparent"></div>
+            <div className="h-0.5 flex-1 bg-gradient-to-r from-red-300 via-pink-200 to-transparent rounded-full"></div>
           </div>
         </div>
         
-        {/* Shops Carousel Container */}
+        {/* Shops Carousel Container with scroll buttons */}
         <div className="w-full relative group">
+          {/* Left scroll button for shops - shows on hover */}
           {showLeftShopButton && (
             <button
-              className="absolute left-0 top-1/2 -translate-y-1/2 bg-white bg-opacity-95 backdrop-blur-sm rounded-full p-3 z-20 shadow-xl hover:shadow-2xl transform hover:scale-110 transition-all duration-300 opacity-0 group-hover:opacity-100 border border-red-100"
+              className="absolute left-0 top-1/2 -translate-y-1/2 bg-white/95 backdrop-blur-md rounded-full p-4 z-20 shadow-2xl hover:shadow-3xl transform hover:scale-110 transition-all duration-300 opacity-0 group-hover:opacity-100 border-2 border-red-200 hover:border-red-400"
               onClick={() => scrollHandler(shopScrollRef, "left")}
+              aria-label="Scroll shops left"
             >
-              <FaChevronCircleLeft size={28} className="text-red-500 drop-shadow-sm hover:text-orange-500 transition-colors" />
+              <FaChevronCircleLeft size={32} className="text-red-500 drop-shadow-md hover:text-orange-500 transition-colors duration-300" />
             </button>
           )}
           
+          {/* Shops scroll container - horizontal scrolling */}
           <div 
-            className="w-full flex gap-5 overflow-x-auto pb-4 scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" 
+            className="w-full flex gap-6 overflow-x-auto pb-6 scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" 
             ref={shopScrollRef}
           >
+            {/* Conditional rendering: show shops if available, otherwise show empty state */}
             {shopInMyCity && shopInMyCity.length > 0 ? (
+              // Map through shops and render CategoryCard for each shop
               shopInMyCity.map((shop, index) => (
                 <div 
                   key={index}
-                  className="transform transition-all duration-300 hover:scale-105 hover:-translate-y-1"
+                  className="transform transition-all duration-300 hover:scale-110 hover:-translate-y-2 cursor-pointer"
                 >
                   <CategoryCard image={shop.image} name={shop.name} />
                 </div>
               ))
             ) : (
-              <div className="w-full py-12 flex flex-col items-center justify-center bg-white bg-opacity-50 backdrop-blur-sm rounded-2xl border border-gray-200">
-                <div className="text-6xl mb-4 animate-bounce">🏪</div>
-                <p className="text-gray-600 text-lg font-semibold">No shops found in this city</p>
-                <p className="text-gray-400 text-sm mt-2">Check back later for new additions!</p>
+              // Empty state when no shops found in the city
+              <div className="w-full py-16 flex flex-col items-center justify-center bg-white/60 backdrop-blur-sm rounded-3xl border-2 border-dashed border-orange-300 shadow-lg">
+                <div className="text-8xl mb-6 animate-bounce">🏪</div>
+                <p className="text-gray-700 text-2xl font-bold">No shops found in this city</p>
+                <p className="text-gray-500 text-lg mt-3">Check back later for new additions!</p>
               </div>
             )}
           </div>
           
+          {/* Right scroll button for shops - shows on hover */}
           {showRightShopButton && (
             <button
-              className="absolute right-0 top-1/2 -translate-y-1/2 bg-white bg-opacity-95 backdrop-blur-sm rounded-full p-3 z-20 shadow-xl hover:shadow-2xl transform hover:scale-110 transition-all duration-300 opacity-0 group-hover:opacity-100 border border-red-100"
+              className="absolute right-0 top-1/2 -translate-y-1/2 bg-white/95 backdrop-blur-md rounded-full p-4 z-20 shadow-2xl hover:shadow-3xl transform hover:scale-110 transition-all duration-300 opacity-0 group-hover:opacity-100 border-2 border-red-200 hover:border-red-400"
               onClick={() => scrollHandler(shopScrollRef, "right")}
+              aria-label="Scroll shops right"
             >
-              <FaChevronCircleRight size={28} className="text-red-500 drop-shadow-sm hover:text-orange-500 transition-colors" />
+              <FaChevronCircleRight size={32} className="text-red-500 drop-shadow-md hover:text-orange-500 transition-colors duration-300" />
             </button>
           )}
           
-          {/* Gradient fade edges */}
-          <div className="absolute left-0 top-0 bottom-4 w-8 bg-gradient-to-r from-white via-white to-transparent pointer-events-none z-10 opacity-80"></div>
-          <div className="absolute right-0 top-0 bottom-4 w-8 bg-gradient-to-l from-white via-white to-transparent pointer-events-none z-10 opacity-80"></div>
+          {/* Gradient fade edges for smooth visual transition */}
+          <div className="absolute left-0 top-0 bottom-6 w-12 bg-gradient-to-r from-orange-50 via-red-50 to-transparent pointer-events-none z-10"></div>
+          <div className="absolute right-0 top-0 bottom-6 w-12 bg-gradient-to-l from-orange-50 via-red-50 to-transparent pointer-events-none z-10"></div>
         </div>
       </div>
 
-      {/* Food Items Section with grid layout */}
-      <div className="w-full max-w-7xl flex flex-col gap-6 px-6 lg:px-8 items-start relative z-10 pb-12">
-        {/* Section header */}
+      {/* Food Items Section - responsive grid layout showing available food items */}
+      <div className="w-full max-w-7xl flex flex-col gap-8 px-4 sm:px-6 lg:px-8 items-start relative z-10 pb-16">
+        {/* Section header for food items */}
         <div className="flex items-center gap-4 w-full">
-          <div className="flex flex-col gap-2">
-            <h1 className="text-gray-800 text-3xl sm:text-4xl font-bold">
-              <span className="bg-gradient-to-r from-gray-900 via-gray-700 to-gray-800 bg-clip-text text-transparent">
+          <div className="flex flex-col gap-3">
+            {/* Main heading for food items section */}
+            <h1 className="text-gray-800 text-3xl sm:text-4xl lg:text-5xl font-extrabold">
+              <span className="bg-gradient-to-r from-gray-900 via-gray-700 to-gray-900 bg-clip-text text-transparent">
                 Suggested Food Items
               </span>
             </h1>
-            <div className="h-1 w-24 bg-gradient-to-r from-orange-500 to-red-500 rounded-full transform transition-all duration-300 hover:w-32"></div>
+            
+            {/* Animated underline decoration */}
+            <div className="h-1.5 w-28 bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 rounded-full shadow-lg"></div>
           </div>
+          
+          {/* Decorative divider line - hidden on mobile */}
           <div className="hidden sm:flex flex-1 items-center ml-8">
-            <div className="h-0.5 flex-1 bg-gradient-to-r from-orange-200 via-orange-100 to-transparent"></div>
+            <div className="h-0.5 flex-1 bg-gradient-to-r from-orange-300 via-red-200 to-transparent rounded-full"></div>
           </div>
         </div>
         
-        {/* Food items grid with responsive layout */}
+        {/* Food items grid container */}
         <div className="w-full">
+          {/* Conditional rendering: show food items if available, otherwise show empty state */}
           {itemInMyCity && itemInMyCity.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 place-items-center">
+            // Responsive grid layout for food items
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 place-items-center">
+              {/* Map through food items and render FoodCard for each */}
               {itemInMyCity.map((item, index) => (
                 <div 
                   key={index}
-                  className="transform transition-all duration-500 hover:scale-[1.02]"
+                  className="transform transition-all duration-500 hover:scale-105 hover:-translate-y-2 cursor-pointer w-full"
                 >
                   <FoodCard data={item} />
                 </div>
               ))}
             </div>
           ) : (
-            <div className="w-full py-20 flex flex-col items-center justify-center bg-white bg-opacity-60 backdrop-blur-sm rounded-3xl border-2 border-dashed border-orange-200">
-              <div className="text-8xl mb-6 animate-pulse">🍽️</div>
-              <p className="text-gray-700 text-xl font-bold">No food items available</p>
-              <p className="text-gray-500 text-base mt-3">We're adding new items soon!</p>
-              <button className="mt-6 px-8 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white font-semibold rounded-full hover:shadow-2xl transform hover:scale-105 transition-all duration-300 hover:from-red-500 hover:to-orange-500">
+            // Empty state when no food items available
+            <div className="w-full py-24 flex flex-col items-center justify-center bg-gradient-to-br from-white/70 to-orange-50/50 backdrop-blur-sm rounded-3xl border-2 border-dashed border-orange-300 shadow-xl">
+              <div className="text-9xl mb-8 animate-pulse">🍽️</div>
+              <p className="text-gray-800 text-3xl font-extrabold">No food items available</p>
+              <p className="text-gray-600 text-lg mt-4 mb-8">We're adding new delicious items soon!</p>
+              
+              {/* Call to action button to explore other cities */}
+              <button className="px-10 py-4 bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 text-white text-lg font-bold rounded-full hover:shadow-2xl transform hover:scale-110 transition-all duration-300 hover:from-pink-500 hover:via-red-500 hover:to-orange-500 shadow-lg">
                 Explore Other Cities
               </button>
             </div>
