@@ -5,6 +5,7 @@ import CategoryCard from "./CategoryCard";
 import { FaChevronCircleLeft, FaChevronCircleRight } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import useGetShopByCity from "../hooks/useGetShopByCity"; // make sure path is correct
+import FoodCard from "./FoodCard";
 
 function UserDashboard() {
   useGetShopByCity(); // fetch shops safely
@@ -16,7 +17,7 @@ function UserDashboard() {
   const [showLeftShopButton, setShowLeftShopButton] = useState(false);
   const [showRightShopButton, setShowRightShopButton] = useState(false);
 
-  const { currentCity, shopInMyCity } = useSelector(state => state.user);
+  const { currentCity, shopInMyCity, itemsInMyCity } = useSelector(state => state.user);
 
   const updateButton = (ref, setLeftButton, setRightButton) => {
     const element = ref.current;
@@ -123,6 +124,11 @@ function UserDashboard() {
 
       <div className="w-full max-w-6xl flex flex-col gap-5 p-[10px] items-start">
           <h1 className="text-gray-800 text-2xl sm:text-3xl">Suggested Food items </h1>
+          <div className="w-full h-auto flex flex-wrap gap-[20px] justify-center ">
+          {itemsInMyCity?.map((item,index)=>{
+            <FoodCard key={index} data={item} />
+          })}
+          </div>
       </div>
     </div>
   );
