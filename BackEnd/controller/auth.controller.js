@@ -26,6 +26,7 @@ export const signUp = async (req, res) => {
       return res.status(400).json({ message: "Password must be at least 6 characters long" });
     }
 
+    // ✅ Fix: allow only 10 digits, reject otherwise
     if (!/^\d{10}$/.test(mobile)) {
       return res.status(400).json({ message: "Mobile number must be exactly 10 digits" });
     }
