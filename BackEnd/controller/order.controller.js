@@ -76,26 +76,37 @@ export const placeOrder = async (req, res) => {
 export const getMyOrders = async (req, res) => {
   try {
     const user = await User.findById(req.userId);
-    if (user.role == "user") {
-      const order = await Order.find({ user: req.userId })
-        .sort({ createdAt: -1 })
-        .populate("shopOrders.shop", "name")
-        .populate("shopOrders.owner", "name email mobile")
-        .populate("shopOrders.shopOrderItems.item", "name image price");
 
-      return res.status(200).json(order);
-    } else if (user.role == "owner") {
-      const order = await Order.find({ "shopOrders.owner": req.userId })
-        .sort({ createdAt: -1 })
-        .populate("shopOrders.shop", "name")
-        .populate("user")
-        .populate("shopOrders.shopOrderItems.item", "name image price");
-
-      return res.status(200).json(order);
+    let query = {};
+    if (user.role === "user") {
+      query = { user: req.userId };
+    } else if (user.role === "owner") {
+      query = { "shopOrders.owner": req.userId };
     }
+
+    const orders = await Order.find(query)
+      .sort({ createdAt: -1 })
+      .populate({
+        path: "shopOrders.shop",
+        select: "name address"
+      })
+      .populate({
+        path: "shopOrders.owner",
+        select: "name email mobile"
+      })
+      .populate({
+        path: "shopOrders.shopOrderItems.item",
+        select: "name image price"
+      })
+      .populate({
+        path: "user",
+        select: "fullName email mobile"
+      });
+
+    return res.status(200).json(orders);
   } catch (error) {
-    return res
-      .status(500)
-      .json({ message: `get my order error ${error.message}` });
+    console.error("Get my orders error:", error);
+    return res.status(500).json({ message: `get my order error ${error.message}` });
   }
 };
+
