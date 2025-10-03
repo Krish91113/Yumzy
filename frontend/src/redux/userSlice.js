@@ -11,7 +11,7 @@ const userSlice = createSlice({
     itemInMyCity: [],
     cartItems: [],
     totalAmount: 0,
-    myOrders:null
+    myOrders: []
   },
   reducers: {
     setUserData: (state, action) => {
@@ -32,7 +32,6 @@ const userSlice = createSlice({
     setItemsInMyCity: (state, action) => {
       state.itemInMyCity = action.payload;
     },
-
     addToCart: (state, action) => {
       const cartItem = action.payload;
       const existingItem = state.cartItems.find(i => i._id === cartItem._id);
@@ -48,7 +47,6 @@ const userSlice = createSlice({
         0
       );
     },
-
     updateQuantity: (state, action) => {
       const { id, quantity } = action.payload;
       const item = state.cartItems.find(i => i._id === id);
@@ -61,7 +59,6 @@ const userSlice = createSlice({
         0
       );
     },
-
     removeFromCart: (state, action) => {
       const id = action.payload;
       state.cartItems = state.cartItems.filter(i => i._id !== id);
@@ -71,9 +68,31 @@ const userSlice = createSlice({
         0
       );
     },
-    setMyOrders:(state,action)=>{
-      state.myOrders=action.payload
-    }
+    setMyOrders: (state, action) => {
+      state.myOrders = action.payload;
+    },
+    addMyOrder: (state, action) => {
+      state.myOrders = [action.payload, ...state.myOrders];
+    },
+    updateOrderStatus: (state, action) => {
+  const { orderId, shopOrderId, status } = action.payload;
+
+  // Find the order
+  const order = state.myOrders.find(o => o._id === orderId);
+  if (!order) return;
+
+  // Ensure shopOrders is an array
+  const shopOrdersArray = Array.isArray(order.shopOrders)
+    ? order.shopOrders
+    : [order.shopOrders];
+
+  // Find the correct shopOrder
+  const shopOrder = shopOrdersArray.find(o => o._id === shopOrderId);
+  if (shopOrder) {
+    shopOrder.status = status;
+  }
+}
+
   }
 });
 
@@ -87,7 +106,9 @@ export const {
   addToCart,
   updateQuantity,
   removeFromCart,
-  setMyOrders
+  setMyOrders,
+  addMyOrder,
+  updateOrderStatus
 } = userSlice.actions;
 
 export default userSlice.reducer;
