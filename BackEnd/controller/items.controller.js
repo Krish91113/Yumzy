@@ -1,121 +1,174 @@
+// items.controller.js
 import Item from "../models/item.models.js";
 import Shop from "../models/shop.models.js";
 import uploadOnCloudinary from "../utils/cloudinary.js";
 
+// ========================== ADD ITEM ==========================
 export const addItem = async (req, res) => {
   try {
     const { name, category, foodType, price } = req.body;
+
+    // Ensure the shop exists
+    const shop = await Shop.findOne({ owner: req.userId });
+    if (!shop) {
+      return res.status(404).json({ message: "Shop not found. Create your shop first." });
+    }
+
+    // Upload image if provided
     let image;
     if (req.file) {
       image = await uploadOnCloudinary(req.file.path);
     }
-    const shop = await Shop.findOne({ owner: req.userId })
-    if (!shop) {
-      return res.status(400).json({ message: "Shop not found" });
-    }
-    const item = await Item.create({
+
+    const newItem = await Item.create({
       name,
       category,
-      foodType,
+      foodType, // must be "Veg" or "Non Veg"
       price,
       image,
-      shop: shop._id,
+      shop: shop._id
     });
-    shop.items.push(item._id)
-    await shop.save()
-    await shop.populate("owner");
-    await shop.populate({
-      path: "items",
-      options: { sort: { updatedAt: -1 } },
-    });   
-    return res.status(200).json(shop);
+
+    // Optionally push the item to shop's items array
+    shop.items.push(newItem._id);
+    await shop.save();
+
+    return res.status(201).json(newItem);
   } catch (error) {
-  console.error("Add Item Error:", error); // <-- log full error
-  return res.status(500).json({ message: `add item error: ${error.message}` });
-}
+    console.error("Add item error:", error);
+    return res.status(500).json({ message: error.message });
+  }
 };
 
+// ========================== DELETE ITEM ==========================
+export const deleteItem = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Find the item first
+    const item = await Item.findById(id);
+    if (!item) {
+      return res.status(404).json({ message: "Item not found" });
+    }
+
+    // Check if the item belongs to the user's shop
+    const shop = await Shop.findOne({ owner: req.userId });
+    if (!shop || item.shop.toString() !== shop._id.toString()) {
+      return res.status(403).json({ message: "Not authorized to delete this item" });
+    }
+
+    // Remove item from shop's items array
+    shop.items = shop.items.filter(itemId => itemId.toString() !== id);
+    await shop.save();
+
+    // Delete the item
+    await Item.findByIdAndDelete(id);
+
+    return res.status(200).json({ message: "Item deleted successfully" });
+  } catch (error) {
+    console.error("Delete item error:", error);
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+// ========================== EDIT ITEM ==========================
 export const editItem = async (req, res) => {
   try {
-    const itemId = req.params.itemId;
+    const { id } = req.params;
     const { name, category, foodType, price } = req.body;
-    let image;
+
+    // Find the item
+    const item = await Item.findById(id);
+    if (!item) {
+      return res.status(404).json({ message: "Item not found" });
+    }
+
+    // Check if the item belongs to the user's shop
+    const shop = await Shop.findOne({ owner: req.userId });
+    if (!shop || item.shop.toString() !== shop._id.toString()) {
+      return res.status(403).json({ message: "Not authorized to edit this item" });
+    }
+
+    // Upload new image if provided
+    let image = item.image;
     if (req.file) {
       image = await uploadOnCloudinary(req.file.path);
     }
-    const item = await Item.findByIdAndUpdate(
-      itemId,
+
+    // Update the item
+    const updatedItem = await Item.findByIdAndUpdate(
+      id,
       {
-        name,
-        category,
-        foodType,
-        price,
-        image,
+        name: name || item.name,
+        category: category || item.category,
+        foodType: foodType || item.foodType,
+        price: price || item.price,
+        image
       },
-      { new: true }
+      { new: true, runValidators: true }
     );
-    if (!item) {
-      return res.status(400).json({ message: "item not found" });
-    }
-    const shop = await Shop.findOne({owner:req.userId}).populate({
-      path: "items",
-      options: { sort: { updatedAt: -1 } },
-    })
-    return res.status(200).json(shop);
+
+    return res.status(200).json(updatedItem);
   } catch (error) {
-    return res.status(500).json({ message: `edit item error ${error}` });
+    console.error("Edit item error:", error);
+    return res.status(500).json({ message: error.message });
   }
 };
 
-export const getItemById =async (req,res)=>{
+// ========================== GET ITEM BY ID ==========================
+export const getItemById = async (req, res) => {
   try {
-    const itemId = req.params.itemId
-    const item =await Item.findById(itemId)
-    if(!item){
-      return res.status(400).json({ message: "item not found" });
-    }
-    return res.status(200).json(item)
-  } catch (error) {
-    return res.status(500).json({ message: `get item error ${error}` });
-  }
-}
+    const { id } = req.params;
 
-export const deleteItem = async (req,res)=>{
-  try {
-    const itemId = req.params.itemId
-    const item = await Item.findByIdAndDelete(itemId)
-    if(!item){
-      return res.status(400).json({ message: "item not found" });
+    const item = await Item.findById(id).populate('shop');
+    if (!item) {
+      return res.status(404).json({ message: "Item not found" });
     }
-    const shop = await Shop.findOne({ owner: req.userId })
-    shop.items = shop.items.filter(i=>i.toString()!==itemId)
-    await shop.save()
-    await shop.populate({
+
+    return res.status(200).json(item);
+  } catch (error) {
+    console.error("Get item by ID error:", error);
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+// ========================== GET ITEMS BY SHOP ==========================
+export const getItemsByShop = async (req, res) => {
+  try {
+    const shop = await Shop.findOne({ owner: req.userId }).populate({
       path: "items",
       options: { sort: { updatedAt: -1 } },
     });
-    return res.status(200).json(shop);
-  } catch (error) {
-    return res.status(500).json({ message: `delete item error ${error}` });
-  }
-}
 
-export const getItemByCity=async(req,res)=>{
-  try {
-    const {city} = req.params
-    if(!city){
-      return res.status(400).json({message:"City is required"});
+    if (!shop) {
+      return res.status(404).json({ message: "Shop not found" });
     }
-    const shops = await Shop.find({
-           city : { $regex: new RegExp(`^${city}$`, 'i') }
-           }).populate('items');
-           if(!shops){
-            return res.status(404).json({message:"No shop found in this city"})
-           }
-      const shopIds=shops.map((shop)=>shop._id)
-      const items=await Item.find({shop:{$in:shopIds}})
-      return res.status(200).json(items)
+
+    return res.status(200).json(shop.items);
   } catch (error) {
-      return res.status(500).json({ message: `get item by city error ${error}` });
+    console.error("Get items error:", error);
+    return res.status(500).json({ message: error.message });
   }
-}
+};
+
+// ========================== GET ITEMS BY CITY ==========================
+export const getItemsByCity = async (req, res) => {
+  try {
+    const { city } = req.params;
+
+    const shops = await Shop.find({ city: { $regex: new RegExp(`^${city}$`, "i") } }).populate("items");
+    if (!shops || shops.length === 0) {
+      return res.status(404).json({ message: "No shops/items found in this city" });
+    }
+
+    // Merge items from all shops
+    const items = shops.flatMap(shop => shop.items);
+    return res.status(200).json(items);
+  } catch (error) {
+    console.error("Get items by city error:", error);
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+// Alternative name if you want to use getItemByCity instead of getItemsByCity
+export const getItemByCity = getItemsByCity;
