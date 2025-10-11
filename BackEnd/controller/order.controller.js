@@ -91,8 +91,8 @@ export const getMyOrders = async (req, res) => {
       user: order.user,
       shopOrders:
         user.role === "owner"
-           ? order.shopOrders.filter((o) => o.owner._id.toString() === req.userId.toString())
-          : order.shopOrders, // user gets first shopOrder
+          ? order.shopOrders.find((o) => o.owner._id.toString() === req.userId.toString())
+          : order.shopOrders[0], // user gets first shopOrder
       createdAt: order.createdAt,
       deliveryAddress: order.deliveryAddress
     }));
@@ -106,31 +106,27 @@ export const getMyOrders = async (req, res) => {
 
 export const updateShopOrderStatus = async (req, res) => {
   try {
-    const { orderId, shopOrderId } = req.params;
+    const { orderId, shopId } = req.params;
     const { status } = req.body;
 
-    if (!status) {
-      return res.status(400).json({ message: "Status is required" });
-    }
-
-    // Find order and shopOrder
     const order = await Order.findById(orderId);
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
     }
 
-    const shopOrder = order.shopOrders.id(shopOrderId);
+    const shopOrder = order.shopOrders.find(
+      (o) => o.shop.toString() === shopId.toString()
+    );
     if (!shopOrder) {
-      return res.status(404).json({ message: "Shop order not found" });
+      return res.status(400).json({ message: "Shop order not found" });
     }
 
-    // Update status
     shopOrder.status = status;
     await order.save();
 
-    res.status(200).json({ message: "Status updated successfully", order });
+    return res.status(200).json({ success: true, status: shopOrder.status });
   } catch (error) {
-    console.error("Update status error:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
+    console.error("Update order status error:", error);
+    return res.status(500).json({ message: `update order status error ${error.message}` });
   }
 };

@@ -40,12 +40,7 @@ export const createEditShop = async (req, res) => {
 
 export const getMyShop = async (req, res) => {
   try {
-    const shop = await Shop.findOne({ owner: req.userId }).populate(
-      {
-      path: "items",
-      options: { sort: { updatedAt: -1 } },
-    }
-    );
+    const shop = await Shop.findOne({ owner: req.userId }).populate("owner items" );
     if (!shop) {
       return res.status(404).json({ message: "Shop not found" });
     }
@@ -56,18 +51,22 @@ export const getMyShop = async (req, res) => {
   }
 };
 
-export const getShopByCity =async (req,res)=>{
+export const getShopByCity = async (req, res) => {
   try {
     const { city } = req.params;
+    console.log("Searching shops in:", city);
+
     const shops = await Shop.find({
-       city : { $regex: new RegExp(`^${city}$`, 'i') }
-       }).populate('items');
-       if(!shops){
-        return res.status(404).json({message:"No shop found in this city"})
-       }
-       return res.status(200).json(shops);
+      city: { $regex: `^${city}$`, $options: "i" } // case-insensitive exact match
+    }).populates("items")
+
+    if (!shops || shops.length === 0) {
+      return res.status(404).json({ message: "No shops found in this city" });
+    }
+
+    res.status(200).json(shops);
   } catch (error) {
-    console.error("get shop by city error:", error);
-    return res.status(500).json({ message: error.message });
+    console.error("Error fetching shops:", error.message);
+    res.status(500).json({ message: "Internal server error" });
   }
-}
+};
