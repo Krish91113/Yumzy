@@ -3,9 +3,7 @@ import { FaDrumstickBite } from "react-icons/fa6";
 import { FaLeaf } from "react-icons/fa";
 import { FaStar } from "react-icons/fa";
 import { FiStar } from "react-icons/fi";
-import { FaPlus } from "react-icons/fa6"; 
-import { FaMinus } from "react-icons/fa";
-import { FaShoppingCart } from "react-icons/fa";
+import { FaPlus, FaMinus, FaShoppingCart } from "react-icons/fa6";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../redux/userSlice";
 
@@ -38,21 +36,20 @@ function FoodCard({ data }) {
   const handleAddToCart = () => {
     if (quantity > 0) {
       dispatch(
-  addToCart({
-    _id: data._id, // ✅ match Redux slice
-    name: data.name,
-    price: data.price,
-    image: data.image,
-    shop: data.shop,
-    quantity,
-    foodType: data.foodType
-  })
-);
-
+        addToCart({
+          id: data._id, // keep consistent
+          name: data.name,
+          price: data.price,
+          image: data.image,
+          shop: data.shop,
+          quantity,
+          foodType: data.foodType
+        })
+      );
     }
   };
+const alreadyInCart = cartItems.some((i) => i._id === data._id);
 
-  const alreadyInCart = cartItems.some((i) => i._id === data._id);
 
 
   return (

@@ -75,24 +75,14 @@ const userSlice = createSlice({
       state.myOrders = [action.payload, ...state.myOrders];
     },
     updateOrderStatus: (state, action) => {
-  const { orderId, shopOrderId, status } = action.payload;
-
-  // Find the order
-  const order = state.myOrders.find(o => o._id === orderId);
-  if (!order) return;
-
-  // Ensure shopOrders is an array
-  const shopOrdersArray = Array.isArray(order.shopOrders)
-    ? order.shopOrders
-    : [order.shopOrders];
-
-  // Find the correct shopOrder
-  const shopOrder = shopOrdersArray.find(o => o._id === shopOrderId);
-  if (shopOrder) {
-    shopOrder.status = status;
-  }
-}
-
+      const { orderId, shopId, status } = action.payload;
+      const order = state.myOrders.find(o => o._id === orderId);
+      if (order) {
+        if (order.shopOrders && order.shopOrders.shop._id === shopId) {
+          order.shopOrders.status = status;
+        }
+      }
+    }
   }
 });
 

@@ -12,7 +12,7 @@ import axios from "axios";
 import { MdDeliveryDining } from "react-icons/md";
 import { FaMobileScreen } from "react-icons/fa6";
 import { serverUrl } from "../App";
-import { addMyOrder } from "../redux/userSlice";
+import { addMyOrder } from "../redux/userSlice"; // ✅ import action
 
 function RecenterMap({ location }) {
   const map = useMap();
@@ -27,7 +27,7 @@ function RecenterMap({ location }) {
 
 function CheckOut() {
   const { location, address } = useSelector((state) => state.map);
-  const { cartItems, totalAmount } = useSelector((state) => state.user);
+  const { cartItems, totalAmount, userData } = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [paymentMethod, setPaymentMethod] = useState("cod");
@@ -68,32 +68,14 @@ function CheckOut() {
     }
   };
 
-    const handlePlaceOrder=async()=>{
-        try {
-            const result=await axios.post(`${serverUrl}/api/order/place-order`, {
-                paymentMethod,
-                totalAmount,
-                deliveryAddress:{
-                    text:addressInput,
-                    latitude:location.lat,
-                    longitude:location.lon
-                },
-                cartItems
-            },{withCredentials:true})
-            dispatch(addMyOrder(result.data))
-            navigate("/order-placed")
-        } catch (error) {
-            console.log(error)
-        }
-    }
   const getLatLngByAddress = async () => {
+    if (!addressInput) return;
     try {
       const result = await axios.get(
         `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(
           addressInput
         )}&apiKey=${apiKey}`
       );
-
       const { lat, lon } = result.data.features[0].properties;
       dispatch(setLocation({ lat, lon }));
     } catch (error) {
@@ -102,16 +84,64 @@ function CheckOut() {
   };
 
   useEffect(() => {
-    if (address) {
-      setAddressInput(address);
-    }
+    if (address) setAddressInput(address);
   }, [address]);
+
+  const handlePlaceOrder = async () => {
+    // ✅ Frontend validations
+    if (!location?.lat || !location?.lon) {
+      alert("Please select your delivery location on the map.");
+      return;
+    }
+    if (!cartItems || cartItems.length === 0) {
+      alert("Your cart is empty.");
+      return;
+    }
+    if (!addressInput) {
+      alert("Please enter a delivery address.");
+      return;
+    }
+
+    try {
+      // ✅ Map cartItems to backend expected format
+      const formattedCartItems = cartItems.map((item) => ({
+        _id: item._id, // item id
+        shop: item.shop, // shop id
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+      }));
+
+      const result = await axios.post(
+        `${serverUrl}/api/order/place-order`,
+        {
+          paymentMethod,
+          totalAmount: AmountWithDeliveryFee,
+          deliveryAddress: {
+            text: addressInput,
+            latitude: location.lat,
+            longitude: location.lon,
+          },
+          cartItems: formattedCartItems,
+        },
+        { withCredentials: true }
+      );
+
+      dispatch(addMyOrder(result.data));
+      navigate("/order-placed");
+    } catch (error) {
+      console.error("Place order failed:", error);
+      alert("Failed to place order. Please try again.");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-pink-50 flex items-center p-4 md:p-6 justify-center relative">
+      {/* Background circles */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-orange-300 rounded-full opacity-20 blur-3xl animate-pulse"></div>
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-pink-300 rounded-full opacity-20 blur-3xl animate-pulse"></div>
 
+      {/* Back button */}
       <div
         className="absolute top-4 md:top-6 left-4 md:left-6 z-50 cursor-pointer group"
         onClick={() => navigate("/")}
@@ -124,7 +154,9 @@ function CheckOut() {
         </div>
       </div>
 
+      {/* Main container */}
       <div className="w-full max-w-7xl bg-white/90 backdrop-blur-md rounded-3xl shadow-2xl p-6 md:p-10 space-y-8 relative z-10">
+        {/* Header */}
         <div className="text-center border-b-2 border-gray-200 pb-6">
           <h1 className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-orange-600 via-red-600 to-pink-600 bg-clip-text text-transparent mb-2">
             Complete Your Order
@@ -132,8 +164,11 @@ function CheckOut() {
           <p className="text-gray-600 text-lg">Just a few steps away from delicious food!</p>
         </div>
 
+        {/* Main Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left: Delivery + Payment */}
           <div className="lg:col-span-2 space-y-8">
+            {/* Delivery Section */}
             <section className="bg-gradient-to-br from-orange-50 to-red-50 rounded-3xl p-8 shadow-xl border border-orange-100 hover:shadow-2xl transition-shadow duration-300">
               <h2 className="text-2xl font-bold mb-6 flex items-center gap-3 text-gray-800">
                 <div className="bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl p-3 shadow-lg">
@@ -141,17 +176,14 @@ function CheckOut() {
                 </div>
                 Delivery Location
               </h2>
-
               <div className="flex flex-col sm:flex-row gap-3 mb-6">
-                <div className="flex-1 relative group">
-                  <input
-                    className="w-full border-2 border-gray-300 rounded-2xl p-4 pl-5 text-base focus:outline-none focus:ring-4 focus:ring-orange-300 focus:border-orange-500 transition-all duration-300 shadow-sm hover:shadow-md bg-white"
-                    type="text"
-                    placeholder="🏠 Enter your delivery address"
-                    value={addressInput || ""}
-                    onChange={(e) => setAddressInput(e.target.value)}
-                  />
-                </div>
+                <input
+                  className="flex-1 border-2 border-gray-300 rounded-2xl p-4 pl-5 focus:outline-none focus:ring-4 focus:ring-orange-300 focus:border-orange-500 transition-all duration-300 shadow-sm hover:shadow-md bg-white"
+                  type="text"
+                  placeholder="🏠 Enter your delivery address"
+                  value={addressInput || ""}
+                  onChange={(e) => setAddressInput(e.target.value)}
+                />
                 <div className="flex gap-3">
                   <button
                     className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-6 py-4 rounded-2xl flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95"
@@ -171,21 +203,13 @@ function CheckOut() {
               <div className="rounded-3xl border-4 border-white overflow-hidden shadow-2xl">
                 <div className="h-80 w-full flex items-center justify-center bg-gray-50">
                   {location?.lat && location?.lon ? (
-                    <MapContainer
-                      className="w-full h-full"
-                      center={[location.lat, location.lon]}
-                      zoom={16}
-                    >
+                    <MapContainer className="w-full h-full" center={[location.lat, location.lon]} zoom={16}>
                       <TileLayer
                         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                       />
                       <RecenterMap location={location} />
-                      <Marker
-                        position={[location.lat, location.lon]}
-                        draggable
-                        eventHandlers={{ dragend: onDragEnd }}
-                      />
+                      <Marker position={[location.lat, location.lon]} draggable eventHandlers={{ dragend: onDragEnd }} />
                     </MapContainer>
                   ) : (
                     <div className="text-center">
@@ -197,6 +221,7 @@ function CheckOut() {
               </div>
             </section>
 
+            {/* Payment Section */}
             <section className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-3xl p-8 shadow-xl border border-purple-100 hover:shadow-2xl transition-shadow duration-300">
               <h2 className="text-2xl font-bold mb-6 flex items-center gap-3 text-gray-800">
                 <div className="bg-gradient-to-br from-purple-500 to-blue-500 rounded-2xl p-3 shadow-lg">
@@ -205,8 +230,9 @@ function CheckOut() {
                 Payment Method
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                {/* COD */}
                 <div
-                  className={`flex items-center gap-4 rounded-3xl border-3 p-6 cursor-pointer transition-all duration-300 transform hover:scale-105 active:scale-95 ${
+                  className={`flex items-center gap-4 rounded-3xl p-6 cursor-pointer transition-all duration-300 transform hover:scale-105 active:scale-95 ${
                     paymentMethod === "cod"
                       ? "border-4 border-orange-500 bg-white shadow-2xl ring-4 ring-orange-200"
                       : "border-2 border-gray-200 bg-white hover:border-gray-300 shadow-lg hover:shadow-xl"
@@ -221,8 +247,10 @@ function CheckOut() {
                     <p className="text-sm text-gray-500 mt-1">Pay when food arrives</p>
                   </div>
                 </div>
+
+                {/* Online */}
                 <div
-                  className={`flex items-center gap-4 rounded-3xl border-3 p-6 cursor-pointer transition-all duration-300 transform hover:scale-105 active:scale-95 ${
+                  className={`flex items-center gap-4 rounded-3xl p-6 cursor-pointer transition-all duration-300 transform hover:scale-105 active:scale-95 ${
                     paymentMethod === "online"
                       ? "border-4 border-orange-500 bg-white shadow-2xl ring-4 ring-orange-200"
                       : "border-2 border-gray-200 bg-white hover:border-gray-300 shadow-lg hover:shadow-xl"
@@ -246,6 +274,7 @@ function CheckOut() {
             </section>
           </div>
 
+          {/* Right: Order Summary */}
           <div className="lg:col-span-1">
             <section className="bg-gradient-to-br from-gray-50 to-slate-100 rounded-3xl p-8 shadow-2xl sticky top-6 border-2 border-gray-200">
               <h2 className="text-2xl font-bold mb-6 text-gray-800 flex items-center gap-3">
@@ -265,7 +294,9 @@ function CheckOut() {
                             <p className="font-bold text-base text-gray-800">{item.name}</p>
                             <p className="text-sm text-gray-500 mt-1">Quantity: {item.quantity}</p>
                           </div>
-                          <span className="font-bold text-xl text-orange-600">₹{item.price * item.quantity}</span>
+                          <span className="font-bold text-xl text-orange-600">
+                            ₹{item.price * item.quantity}
+                          </span>
                         </div>
                       ))}
                     </div>
@@ -277,7 +308,7 @@ function CheckOut() {
                       </div>
                       <div className="flex justify-between text-gray-700 text-lg">
                         <span className="font-semibold">Delivery Fee</span>
-                        <span className={`font-bold ${deliveryFee === 0 ? 'text-green-600' : 'text-gray-800'}`}>
+                        <span className={`font-bold ${deliveryFee === 0 ? "text-green-600" : "text-gray-800"}`}>
                           {deliveryFee === 0 ? "FREE 🎉" : `₹${deliveryFee}`}
                         </span>
                       </div>
@@ -297,9 +328,12 @@ function CheckOut() {
                       </div>
                     </div>
 
-                    <button className="w-full bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 hover:from-green-600 hover:via-emerald-600 hover:to-teal-600 text-white font-bold text-lg py-5 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 active:scale-95 flex items-center justify-center gap-3" onClick={handlePlaceOrder}>
+                    <button
+                      className="w-full bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 hover:from-green-600 hover:via-emerald-600 hover:to-teal-600 text-white font-bold text-lg py-5 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 active:scale-95 flex items-center justify-center gap-3"
+                      onClick={handlePlaceOrder}
+                    >
                       <span className="text-2xl">🍽️</span>
-                     {paymentMethod=="cod"?"Place Order" : "Pay & Place Order"}
+                      {paymentMethod === "cod" ? "Place Order" : "Pay & Place Order"}
                     </button>
                   </>
                 ) : (
