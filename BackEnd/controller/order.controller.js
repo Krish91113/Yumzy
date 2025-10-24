@@ -99,8 +99,14 @@ export const getMyOrders = async (req, res) => {
       .populate("shopOrders.shop", "name" )
       .populate("user")
       .populate("shopOrders.shopOrderItems.item", "name image price" )
-
-    return res.status(200).json(orders);
+const filteredOrders = orders.map(order=>({
+  _id:order._id,
+  user:order.user,
+  paymentMethod:order.paymentMethod,
+  shopOrders:order.shopOrders.find(o=>o.owner._id==req.userId),
+  createdAt:order.createdAt,
+}))
+    return res.status(200).json(filteredOrders);
     }
   } catch (error) {
     console.error("Get my orders error:", error);
@@ -118,21 +124,21 @@ export const updateShopOrderStatus = async (req, res) => {
     const { status } = req.body;
 
     const order = await Order.findById(orderId);
-    if (!order) {
-      return res.status(404).json({ message: "Order not found" });
-    }
+    if (!order) return res.status(404).json({ message: "Order not found" });
 
+    // Find subdocument by matching ObjectId as string
     const shopOrder = order.shopOrders.find(
-      (o) => o.shop.toString() === shopId.toString()
+      o => o.shop.toString() === shopId.toString()
     );
-    if (!shopOrder) {
-      return res.status(400).json({ message: "Shop order not found" });
-    }
 
+    if (!shopOrder)
+      return res.status(400).json({ message: "Shop order not found" });
+
+    // Update status and save parent order
     shopOrder.status = status;
     await order.save();
 
-    return res.status(200).json({ success: true, status: shopOrder.status });
+    return res.status(200).json(shopOrder);
   } catch (error) {
     console.error("Update order status error:", error);
     return res
