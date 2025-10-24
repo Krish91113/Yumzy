@@ -3,12 +3,13 @@ import { FaCircleCheck } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
 
 function OrderPlaced() {
-    const navigate=useNavigate()
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-pink-50 flex flex-col justify-center items-center px-6 text-center relative overflow-hidden">
       {/* Background decorative circles */}
-      <div className="absolute top-0 left-0 w-72 h-72 bg-orange-300 rounded-full opacity-20 blur-3xl animate-pulse"></div>
-      <div className="absolute bottom-0 right-0 w-80 h-80 bg-pink-300 rounded-full opacity-20 blur-3xl animate-pulse"></div>
+      <div className="absolute top-0 left-0 w-72 h-72 bg-orange-300 rounded-full opacity-20 blur-3xl animate-pulse pointer-events-none"></div>
+      <div className="absolute bottom-0 right-0 w-80 h-80 bg-pink-300 rounded-full opacity-20 blur-3xl animate-pulse pointer-events-none"></div>
 
       {/* Success Icon */}
       <div className="relative mb-6">
@@ -29,7 +30,10 @@ function OrderPlaced() {
       </p>
 
       {/* Button */}
-      <button className="bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 hover:from-orange-600 hover:via-red-600 hover:to-pink-600 text-white px-10 py-4 rounded-2xl text-lg font-bold shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 active:scale-95" onClick={()=>navigate("/my-orders")}>
+      <button
+        onClick={() => navigate("/my-orders")}
+        className="bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 hover:from-orange-600 hover:via-red-600 hover:to-pink-600 text-white px-10 py-4 rounded-2xl text-lg font-bold shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 active:scale-95"
+      >
         Back to My Orders
       </button>
     </div>

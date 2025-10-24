@@ -113,6 +113,9 @@ function Nav() {
                 >
                   <FaPlus size={20} />
                 </button>
+                <button className="hidden md:block px-3 py-1 rounded-lg bg-[#ff4d2d]/10 text-[#ff4d2d] text-sm font-medium" onClick={()=>navigate("/my-orders")}>
+                My Orders
+              </button>
               </>
             )}
           </>
@@ -133,7 +136,7 @@ function Nav() {
 
             {/* Orders button (desktop only) */}
             {userData?.role === "user" && (
-              <button className="hidden md:block px-3 py-1 rounded-lg bg-[#ff4d2d]/10 text-[#ff4d2d] text-sm font-medium">
+              <button className="hidden md:block px-3 py-1 rounded-lg bg-[#ff4d2d]/10 text-[#ff4d2d] text-sm font-medium" onClick={()=>navigate("/my-orders")}>
                 My Orders
               </button>
             )}
