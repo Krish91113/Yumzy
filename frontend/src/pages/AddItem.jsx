@@ -63,7 +63,6 @@ function AddItem() {
 
       const result = await axios.post(`${serverUrl}/api/item/add-item`, formData, {
         withCredentials: true,
-        headers: { "Content-Type": "multipart/form-data" }
       });
 
       dispatch(setMyShopData(result.data));
