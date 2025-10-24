@@ -49,7 +49,7 @@ function FoodCard({ data }) {
       );
     }
   };
-const alreadyInCart = cartItems.some((i) => i._id === data._id);
+const alreadyInCart = cartItems.some((i) => i.id === data.id);
 
 
 

@@ -9,7 +9,15 @@ const userSlice = createSlice({
     currentAddress: null,
     shopInMyCity: [],
     itemInMyCity: [],
-    cartItems: [],
+    cartItems: [{
+      id: null,
+      name: null,
+      price: null,
+      quantity: null,
+      image: null,
+      shop: null,
+      foodType: null
+    }],
     totalAmount: 0,
     myOrders: []
   },
@@ -34,12 +42,12 @@ const userSlice = createSlice({
     },
     addToCart: (state, action) => {
       const cartItem = action.payload;
-      const existingItem = state.cartItems.find(i => i._id === cartItem._id);
+      const existingItem = state.cartItems.find(i => i.id === cartItem.id);
 
       if (existingItem) {
         existingItem.quantity += cartItem.quantity;
       } else {
-        state.cartItems.push({ ...cartItem, quantity: cartItem.quantity || 1 });
+        state.cartItems.push(cartItem);
       }
 
       state.totalAmount = state.cartItems.reduce(

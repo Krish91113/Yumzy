@@ -88,29 +88,29 @@ function CheckOut() {
   }, [address]);
 
   const handlePlaceOrder = async () => {
-    // ✅ Frontend validations
-    if (!location?.lat || !location?.lon) {
-      alert("Please select your delivery location on the map.");
-      return;
-    }
-    if (!cartItems || cartItems.length === 0) {
-      alert("Your cart is empty.");
-      return;
-    }
-    if (!addressInput) {
-      alert("Please enter a delivery address.");
-      return;
-    }
+    // // ✅ Frontend validations
+    // if (!location?.lat || !location?.lon) {
+    //   alert("Please select your delivery location on the map.");
+    //   return;
+    // }
+    // if (!cartItems || cartItems.length === 0) {
+    //   alert("Your cart is empty.");
+    //   return;
+    // }
+    // if (!addressInput) {
+    //   alert("Please enter a delivery address.");
+    //   return;
+    // }
 
     try {
-      // ✅ Map cartItems to backend expected format
-      const formattedCartItems = cartItems.map((item) => ({
-        _id: item._id, // item id
-        shop: item.shop, // shop id
-        name: item.name,
-        price: item.price,
-        quantity: item.quantity,
-      }));
+      // // ✅ Map cartItems to backend expected format
+      // const formattedCartItems = cartItems.map((item) => ({
+      //   _id: item._id, // item id
+      //   shop: item.shop, // shop id
+      //   name: item.name,
+      //   price: item.price,
+      //   quantity: item.quantity,
+      // }));
 
       const result = await axios.post(
         `${serverUrl}/api/order/place-order`,
@@ -122,7 +122,7 @@ function CheckOut() {
             latitude: location.lat,
             longitude: location.lon,
           },
-          cartItems: formattedCartItems,
+          cartItems,
         },
         { withCredentials: true }
       );
