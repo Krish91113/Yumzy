@@ -19,7 +19,7 @@ const userSlice = createSlice({
       foodType: null
     }],
     totalAmount: 0,
-    myOrders: []
+    myOrders: null
   },
   reducers: {
     setUserData: (state, action) => {
