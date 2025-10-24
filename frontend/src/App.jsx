@@ -17,11 +17,13 @@ import CheckOut from "./pages/CheckOut";
 import OrderPlaced from "./pages/OrderPlaced";
 import MyOrder from "./pages/MyOrder";
 import useGetMyOrders from "./hooks/useGetMyOrder";
+import useGetMyShop from "./hooks/useGetMyShop";
 export const serverUrl = "http://localhost:8000"
 
 function App(){
   useGetCurrentUser()
   useGetCity()
+  useGetMyShop()
   useGetShopByCity()
   useGetItemsByCity()
   useGetMyOrders()
