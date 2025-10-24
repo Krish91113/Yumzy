@@ -61,7 +61,7 @@ export const getShopByCity = async (req, res) => {
 
     const shops = await Shop.find({
       city: { $regex: `^${city}$`, $options: "i" } // case-insensitive exact match
-    }).populates("items")
+    }).populate("items")
 
     if (!shops || shops.length === 0) {
       return res.status(404).json({ message: "No shops found in this city" });
