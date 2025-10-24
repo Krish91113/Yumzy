@@ -79,8 +79,13 @@ export const placeOrder = async (req, res) => {
   }
 };
 
-export const getUserOrders = async (req, res) => {
+export const getMyOrders = async (req, res) => {
   try {
+    const user = await User.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    } 
+    if(user.role == "user"){
         const orders = await Order.find({ user: req.userId })
       .sort({ createdAt: -1 })
       .populate("shopOrders.shop", "name" )
@@ -88,6 +93,15 @@ export const getUserOrders = async (req, res) => {
       .populate("shopOrders.shopOrderItems.item", "name image price" )
 
     return res.status(200).json(orders);
+    } else if(user.role == "owner"){
+      const orders = await Order.find({ "shopOrders.owner": req.userId })
+      .sort({ createdAt: -1 })
+      .populate("shopOrders.shop", "name" )
+      .populate("user")
+      .populate("shopOrders.shopOrderItems.item", "name image price" )
+
+    return res.status(200).json(orders);
+    }
   } catch (error) {
     console.error("Get my orders error:", error);
     return res
@@ -96,22 +110,6 @@ export const getUserOrders = async (req, res) => {
   }
 };
 
-export const getOwnerOrders = async (req, res) => {
-  try {
-        const orders = await Order.find({ "shopOrders.owner": req.userId })
-      .sort({ createdAt: -1 })
-      .populate("shopOrders.shop", "name" )
-      .populate("user")
-      .populate("shopOrders.shopOrderItems.item", "name image price" )
-
-    return res.status(200).json(orders);
-  } catch (error) {
-    console.error("Get my orders error:", error);
-    return res
-      .status(500)
-      .json({ message: `get my order error ${error.message}` });
-  }
-}
   
 
 export const updateShopOrderStatus = async (req, res) => {
