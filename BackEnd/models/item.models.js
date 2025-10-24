@@ -41,10 +41,6 @@ const itemSchema =new mongoose.Schema({
         enum:["Veg","Non Veg"],
         required:true
     },
-    rating:{
-        average:{type:Number,default:0},
-        count:{type:Number,default:0},
-    }
 },{timestamps:true})
 
 const Item=mongoose.model("Item",itemSchema)

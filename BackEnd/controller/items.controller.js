@@ -8,32 +8,23 @@ export const addItem = async (req, res) => {
   try {
     const { name, category, foodType, price } = req.body;
 
-    // Ensure the shop exists
-    const shop = await Shop.findOne({ owner: req.userId });
-    if (!shop) {
-      return res.status(404).json({ message: "Shop not found. Create your shop first." });
-    }
-
-    // Upload image if provided
     let image;
-    if (req.file) {
+    if(req.file){
       image = await uploadOnCloudinary(req.file.path);
     }
-
-    const newItem = await Item.create({
+    const shop = await Shop.findOne({ owner: req.userId });
+    if(!shop){
+      return res.status(404).json({ message: "Shop not found. Please create a shop first." });
+    }
+    const item = await Item.create({
       name,
       category,
-      foodType, // must be "Veg" or "Non Veg"
+      foodType,
       price,
       image,
       shop: shop._id
     });
-
-    // Optionally push the item to shop's items array
-    shop.items.push(newItem._id);
-    await shop.save();
-
-    return res.status(201).json(newItem);
+      return res.status(201).json(item);
   } catch (error) {
     console.error("Add item error:", error);
     return res.status(500).json({ message: error.message });
@@ -73,46 +64,29 @@ export const deleteItem = async (req, res) => {
 
 // ========================== EDIT ITEM ==========================
 export const editItem = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { name, category, foodType, price } = req.body;
-
-    // Find the item
-    const item = await Item.findById(id);
-    if (!item) {
-      return res.status(404).json({ message: "Item not found" });
-    }
-
-    // Check if the item belongs to the user's shop
-    const shop = await Shop.findOne({ owner: req.userId });
-    if (!shop || item.shop.toString() !== shop._id.toString()) {
-      return res.status(403).json({ message: "Not authorized to edit this item" });
-    }
-
-    // Upload new image if provided
-    let image = item.image;
-    if (req.file) {
-      image = await uploadOnCloudinary(req.file.path);
-    }
-
-    // Update the item
-    const updatedItem = await Item.findByIdAndUpdate(
-      id,
-      {
-        name: name || item.name,
-        category: category || item.category,
-        foodType: foodType || item.foodType,
-        price: price || item.price,
-        image
-      },
-      { new: true, runValidators: true }
-    );
-
-    return res.status(200).json(updatedItem);
-  } catch (error) {
-    console.error("Edit item error:", error);
-    return res.status(500).json({ message: error.message });
+ try {
+  const itemId = req.params.id;
+  const { name, category, foodType, price } = req.body;
+  // Upload new image if provided
+  let image = item.image;
+  if (req.file) {
+    image = await uploadOnCloudinary(req.file.path);
   }
+
+  // Update the item
+  const item = await Item.findByIdAndUpdate(
+    itemId,
+    {
+      name, category, foodType, price, image
+    },
+    { new: true}
+  );
+
+  return res.status(200).json(item);
+} catch (error) {
+  console.error("Edit item error:", error);
+  return res.status(500).json({ message: error.message });
+}
 };
 
 // ========================== GET ITEM BY ID ==========================
