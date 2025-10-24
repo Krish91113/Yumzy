@@ -106,9 +106,9 @@ export const editItem = async (req, res) => {
 // ========================== GET ITEM BY ID ==========================
 export const getItemById = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { itemId } = req.params;
 
-    const item = await Item.findById(id).populate("shop");
+    const item = await Item.findById(itemId).populate("shop");
     if (!item) {
       return res.status(404).json({ message: "Item not found" });
     }
@@ -119,6 +119,7 @@ export const getItemById = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
 
 // ========================== GET ITEMS BY SHOP ==========================
 export const getItemsByShop = async (req, res) => {
