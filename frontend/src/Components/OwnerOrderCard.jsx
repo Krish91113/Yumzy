@@ -8,22 +8,47 @@ import { updateOrderStatus } from "../redux/userSlice";
 function OwnerOrderCard({ data }) {
   // const dispatch = useDispatch();
 
-  const handleUpdateStatus = async (orderId, shopId, status) => {
+  // IMPROVED Frontend Function
+const handleUpdateStatus = async (orderId, shopId, status) => {
   try {
-    // console.log("Updating order:", orderId, shopId, status); // debug
+    console.log("=== FRONTEND UPDATE REQUEST ===");
+    console.log("OrderId:", orderId, "Type:", typeof orderId);
+    console.log("ShopId:", shopId, "Type:", typeof shopId);
+    console.log("Status:", status);
+    console.log("URL:", `${serverUrl}/api/order/update-status/${orderId}/${shopId}`);
 
     const result = await axios.post(
       `${serverUrl}/api/order/update-status/${orderId}/${shopId}`,
       { status },
-      { withCredentials: true }
+      { 
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
     );
-    console.log(result.data);
+    
+    console.log("Success Response:", result.data);
+    
+    // Add success feedback
+    toast.success("Order status updated successfully");
+    
+    // Refresh data or update state
+    // fetchOrders(); // or update local state
+    
+    return result.data;
 
   } catch (error) {
-    console.error(
-      "Update status error:",
-      error.response?.data || error.message
-    );
+    console.error("=== UPDATE STATUS ERROR ===");
+    console.error("Full error:", error);
+    console.error("Response data:", error.response?.data);
+    console.error("Response status:", error.response?.status);
+    console.error("Response headers:", error.response?.headers);
+    
+    // Add user feedback
+    toast.error(error.response?.data?.message || "Failed to update status");
+    
+    throw error;
   }
 };
 
@@ -55,7 +80,7 @@ function OwnerOrderCard({ data }) {
   <div key={shopOrder._id} className="border rounded-lg p-4 bg-gray-50 space-y-4">
     {/* Items */}
     <div className="flex gap-3 flex-wrap">
-      {shopOrder.shopOrderItems.map((item, index) => (
+      {shopOrder?.shopOrderItems?.map((item, index) => (
         <div key={index} className="flex-shrink-0 w-40 border rounded-lg p-2 bg-white">
           <img src={item.item?.image} alt={item.item?.name} className="w-full h-24 object-cover rounded" />
           <p className="font-medium">{item.item?.name}</p>
